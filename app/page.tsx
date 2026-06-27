@@ -13,31 +13,45 @@ export default async function HomePage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="text-2xl font-bold mb-2">自分発見・人生設計ツール</h1>
-      <p className="text-sm text-gray-600 mb-8">
-        日々のワクワク・ストレスを記録し、AIが自分に合う仕事・働き方・ライフスタイル・人間関係の傾向を分析する自己理解サービスです。
-        氏名・メールアドレス・電話番号などの個人情報は収集しません。
+      <p className="text-sm text-gray-600 mb-6">
+        日々のワクワク・ストレスを記録し、AIがあなたに合う仕事・働き方・人間関係の傾向を見つけるお手伝いをします。
       </p>
 
-      <section className="mb-6">
-        <h2 className="font-semibold mb-2">利用規約</h2>
-        <div className="h-48 overflow-y-auto rounded border border-gray-200 p-3 text-xs whitespace-pre-wrap text-gray-700 bg-gray-50">
+      <ul className="mb-6 space-y-2 text-sm">
+        <li className="flex gap-2">
+          <span>✓</span>
+          <span>氏名・メールアドレスなどの個人情報は不要。すぐに使えます</span>
+        </li>
+        <li className="flex gap-2">
+          <span>✓</span>
+          <span>あなたの記録・分析結果は本人以外（運営者含む）見られません</span>
+        </li>
+        <li className="flex gap-2">
+          <span>✓</span>
+          <span>AIの分析は参考情報です。診断や断定ではありません</span>
+        </li>
+      </ul>
+
+      <details className="mb-3 rounded border border-gray-200 p-3 text-sm">
+        <summary className="cursor-pointer font-medium">利用規約を読む（タップで開く）</summary>
+        <div className="mt-3 h-48 overflow-y-auto whitespace-pre-wrap text-xs text-gray-700 bg-gray-50 rounded p-3">
           {TERMS_TEXT}
         </div>
-      </section>
+      </details>
 
-      <section className="mb-8">
-        <h2 className="font-semibold mb-2">プライバシーポリシー</h2>
-        <div className="h-48 overflow-y-auto rounded border border-gray-200 p-3 text-xs whitespace-pre-wrap text-gray-700 bg-gray-50">
+      <details className="mb-8 rounded border border-gray-200 p-3 text-sm">
+        <summary className="cursor-pointer font-medium">プライバシーポリシーを読む（タップで開く）</summary>
+        <div className="mt-3 h-48 overflow-y-auto whitespace-pre-wrap text-xs text-gray-700 bg-gray-50 rounded p-3">
           {PRIVACY_TEXT}
         </div>
-      </section>
+      </details>
 
       <form action={agreeAndStart}>
         <button
           type="submit"
           className="w-full rounded bg-black text-white py-3 font-medium hover:bg-gray-800"
         >
-          同意して利用を開始する
+          同意してはじめる
         </button>
       </form>
 
