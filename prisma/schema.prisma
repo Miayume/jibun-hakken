@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(uuid())
+  recoveryCodeHash String  @unique
+  plan            String   @default("free")
+  createdAt       DateTime @default(now())
+
+  profile  Profile?
+  entries  Entry[]
+  analyses AnalysisResult[]
+  consents Consent[]
+}
+
+model Profile {
+  userId         String  @id
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ageRange       String?
+  gender         String?
+  prefecture     String?
+  industry       String?
+  jobType        String?
+  employmentType String?
+  workStyle      String?
+  updatedAt      DateTime @updatedAt
+}
+
+model Entry {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type            String // "wakuwaku" | "stress"
+  what            String?
+  doingWhat       String?
+  withWho         String?
+  whoPerson       String?
+  whoGoodPoint    String?
+  whyStress       String?
+  whereWas        String?
+  whyFeeling      String?
+  mostImpressive  String?
+  futureUseful    String? // 5択の回答値
+  futureImprove   String?
+  createdAt       DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model AnalysisResult {
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scope               String // "recent30" | "recent100" | "all"
+  tier                String // "simple" | "detailed" | "full"
+  content             String // JSON文字列
+  basedOnEntryCount   Int
+  createdAt           DateTime @default(now())
+
+  @@index([userId, scope])
+}
+
+model Consent {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  termsVersion  String
+  privacyVersion String
+  agreedAt      DateTime @default(now())
+}
+
+model Feature {
+  key       String  @id
+  isPremium Boolean @default(false)
+}
