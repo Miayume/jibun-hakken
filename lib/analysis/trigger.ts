@@ -1,6 +1,11 @@
 import { prisma } from "@/lib/db";
 import { getAIProvider } from "@/lib/ai/provider";
-import type { AnalysisScope, AnalysisTier, JournalEntryForAnalysis } from "@/lib/ai/types";
+import type {
+  AnalysisContent,
+  AnalysisScope,
+  AnalysisTier,
+  JournalEntryForAnalysis,
+} from "@/lib/ai/types";
 
 function tierForCount(count: number): AnalysisTier | null {
   if (count >= 30) return "full";
@@ -18,7 +23,11 @@ function sliceForScope(
   return entriesAsc.slice(Math.max(0, entriesAsc.length - n));
 }
 
-/** 記録の追加・削除のたびに呼び出し、件数に応じて3スコープぶんの分析を再生成する */
+/**
+ * 記録の追加・削除のたびに呼び出し、件数に応じて3スコープぶんの分析を再生成する。
+ * recent30/recent100/allが同じ記録セットになる場合（総件数が少ない場合）はAPI呼び出しを共有し、
+ * 異なるセットになる分だけ並列でAI分析を呼び出す。
+ */
 export async function runAnalysisForUser(userId: string): Promise<void> {
   const entries = (await prisma.entry.findMany({
     where: { userId },
@@ -31,20 +40,35 @@ export async function runAnalysisForUser(userId: string): Promise<void> {
   const provider = getAIProvider();
   const scopes: AnalysisScope[] = ["recent30", "recent100", "all"];
 
-  for (const scope of scopes) {
-    const scopedEntries = sliceForScope(entries, scope);
-    const content = await provider.analyze({ entries: scopedEntries, tier, scope });
+  // 同じ件数(=同じ記録セット)のスコープはAPI呼び出しを1回にまとめる
+  const sliceLengthByScope = new Map(scopes.map((s) => [s, sliceForScope(entries, s).length]));
+  const uniqueLengths = [...new Set(sliceLengthByScope.values())];
 
-    await prisma.analysisResult.create({
-      data: {
-        userId,
-        scope,
-        tier,
-        content: JSON.stringify(content),
-        basedOnEntryCount: scopedEntries.length,
-      },
-    });
-  }
+  const contentByLength = new Map<number, AnalysisContent>(
+    await Promise.all(
+      uniqueLengths.map(async (length) => {
+        const scopedEntries = entries.slice(entries.length - length);
+        const content = await provider.analyze({ entries: scopedEntries, tier, scope: "all" });
+        return [length, content] as const;
+      })
+    )
+  );
+
+  await Promise.all(
+    scopes.map((scope) => {
+      const length = sliceLengthByScope.get(scope)!;
+      const content = contentByLength.get(length)!;
+      return prisma.analysisResult.create({
+        data: {
+          userId,
+          scope,
+          tier,
+          content: JSON.stringify(content),
+          basedOnEntryCount: length,
+        },
+      });
+    })
+  );
 }
 
 export function entryCountThresholds() {
