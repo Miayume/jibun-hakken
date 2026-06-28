@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useFormStatus } from "react-dom";
 import { addEntry } from "@/app/actions/journal";
 
 const FUTURE_USEFUL_OPTIONS = [
@@ -86,13 +87,21 @@ export default function JournalForm() {
         </div>
       )}
 
-      <button
-        type="submit"
-        className="w-full rounded bg-black text-white py-3 font-medium hover:bg-gray-800"
-      >
-        記録を保存する
-      </button>
+      <SubmitButton />
     </form>
+  );
+}
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="w-full rounded bg-black text-white py-3 font-medium hover:bg-gray-800 disabled:opacity-50"
+    >
+      {pending ? "保存中..." : "記録を保存する"}
+    </button>
   );
 }
 
