@@ -1,9 +1,9 @@
 import type { AnalysisTier, JournalEntryForAnalysis } from "@/lib/ai/types";
 
 const TIER_INSTRUCTIONS: Record<AnalysisTier, string> = {
-  simple: "各カテゴリにつき1つだけ、最も確信度の高い傾向を簡潔に述べてください。",
-  detailed: "各カテゴリにつき2〜3個、記録の根拠が分かるように具体的に述べてください。",
-  full: "各カテゴリにつき3〜5個、時系列の変化や複数の記録の組み合わせも踏まえて詳細に述べてください。",
+  simple: "各項目につき1つだけ、最も確信度の高い傾向を簡潔に述べてください。記録が少ないため確信が持てない項目は、空配列 [] にしてください。",
+  detailed: "各項目につき2〜3個、記録の根拠が分かるように具体的に述べてください。",
+  full: "各項目につき3〜5個、時系列の変化や複数の記録の組み合わせも踏まえて詳細に述べてください。「時間とともに変化した価値観」は、記録の前半と後半を比較して変化があれば具体的に述べてください。",
 };
 
 export const SYSTEM_PROMPT = `あなたは自己理解支援アプリのAI分析エンジンです。
@@ -43,18 +43,43 @@ export function buildUserPrompt(
 
 ${entriesText}
 
-次のJSON形式のみで出力してください:
+次のJSON形式のみで出力してください。各項目名の意味は日本語コメントの通りです:
 {
   "summary": "string",
-  "work": ["string"],
-  "lifestyle": ["string"],
-  "environment": ["string"],
-  "relationships": ["string"],
-  "happiness": ["string"],
-  "stress": ["string"],
-  "values": ["string"],
-  "thinkingAndAction": ["string"],
-  "strengths": ["string"]
+  "work": {
+    "suitableJobs": ["string"],       // 自分に合う仕事
+    "suitableRoles": ["string"],      // 自分に合う役割
+    "suitableWorkStyle": ["string"]   // 自分に合う働き方
+  },
+  "lifestyle": {
+    "suitableLifestyle": ["string"]   // 自分に合うライフスタイル
+  },
+  "environment": {
+    "happyEnvironment": ["string"]    // 自分が幸せになれる環境
+  },
+  "relationships": {
+    "happyRelationships": ["string"], // 自分が幸せになれる人間関係
+    "compatibility": ["string"]       // どんな人と相性が良いか・悪いか
+  },
+  "happiness": {
+    "conditions": ["string"],         // 自分が幸福を感じる条件
+    "suggestions": ["string"]         // 幸福を感じる時間・体験を日常生活で増やすための具体的な提案
+  },
+  "stress": {
+    "commonPatterns": ["string"],     // ストレスを感じる共通点
+    "growthStress": ["string"],       // 成長につながるストレス
+    "avoidStress": ["string"]         // 避けるべきストレス
+  },
+  "values": {
+    "current": ["string"],            // 自分の価値観
+    "changeOverTime": ["string"]      // 時間とともに変化した価値観（記録が少ない場合は空配列）
+  },
+  "thinkingAndAction": {
+    "problemApproach": ["string"],    // 問題への向き合い方
+    "futurePatterns": ["string"],     // 将来の目標や行動パターン
+    "actionSuggestions": ["string"]   // 今後の行動への具体的な提案
+  },
+  "strengths": ["string"]             // 自分の強み
 }`;
 }
 

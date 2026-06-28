@@ -12,23 +12,74 @@ const SCOPE_LABELS: Record<AnalysisScope, string> = {
   all: "全期間",
 };
 
-const CATEGORY_LABELS: { key: keyof AnalysisContent; label: string }[] = [
-  { key: "work", label: "仕事" },
-  { key: "lifestyle", label: "ライフスタイル" },
-  { key: "environment", label: "環境" },
-  { key: "relationships", label: "人間関係" },
-  { key: "happiness", label: "幸福" },
-  { key: "stress", label: "ストレス" },
-  { key: "values", label: "価値観" },
-  { key: "thinkingAndAction", label: "思考・行動" },
-  { key: "strengths", label: "強み" },
-];
-
 const TIER_LABELS: Record<string, string> = {
   simple: "簡易分析",
   detailed: "詳細分析",
   full: "本格分析",
 };
+
+const SECTIONS: {
+  label: string;
+  parts: { label: string; get: (c: AnalysisContent) => string[] }[];
+}[] = [
+  {
+    label: "仕事",
+    parts: [
+      { label: "自分に合う仕事", get: (c) => c.work.suitableJobs },
+      { label: "自分に合う役割", get: (c) => c.work.suitableRoles },
+      { label: "自分に合う働き方", get: (c) => c.work.suitableWorkStyle },
+    ],
+  },
+  {
+    label: "ライフスタイル",
+    parts: [{ label: "自分に合うライフスタイル", get: (c) => c.lifestyle.suitableLifestyle }],
+  },
+  {
+    label: "環境",
+    parts: [{ label: "自分が幸せになれる環境", get: (c) => c.environment.happyEnvironment }],
+  },
+  {
+    label: "人間関係",
+    parts: [
+      { label: "自分が幸せになれる人間関係", get: (c) => c.relationships.happyRelationships },
+      { label: "相性が良い・悪い人", get: (c) => c.relationships.compatibility },
+    ],
+  },
+  {
+    label: "幸福",
+    parts: [
+      { label: "幸福を感じる条件", get: (c) => c.happiness.conditions },
+      { label: "幸福を感じる時間・体験を増やす提案", get: (c) => c.happiness.suggestions },
+    ],
+  },
+  {
+    label: "ストレス",
+    parts: [
+      { label: "ストレスを感じる共通点", get: (c) => c.stress.commonPatterns },
+      { label: "成長につながるストレス", get: (c) => c.stress.growthStress },
+      { label: "避けるべきストレス", get: (c) => c.stress.avoidStress },
+    ],
+  },
+  {
+    label: "価値観",
+    parts: [
+      { label: "自分の価値観", get: (c) => c.values.current },
+      { label: "時間とともに変化した価値観", get: (c) => c.values.changeOverTime },
+    ],
+  },
+  {
+    label: "思考・行動",
+    parts: [
+      { label: "問題への向き合い方", get: (c) => c.thinkingAndAction.problemApproach },
+      { label: "将来の目標・行動パターン", get: (c) => c.thinkingAndAction.futurePatterns },
+      { label: "今後の行動への具体的な提案", get: (c) => c.thinkingAndAction.actionSuggestions },
+    ],
+  },
+  {
+    label: "強み",
+    parts: [{ label: "自分の強み", get: (c) => c.strengths }],
+  },
+];
 
 export default async function AnalysisPage({
   searchParams,
@@ -88,17 +139,26 @@ export default async function AnalysisPage({
             <p>{content.summary}</p>
           </div>
 
-          {CATEGORY_LABELS.map(({ key, label }) => {
-            const items = content[key];
-            if (!Array.isArray(items) || items.length === 0) return null;
+          {SECTIONS.map((section) => {
+            const parts = section.parts
+              .map((part) => ({ label: part.label, items: part.get(content) }))
+              .filter((part) => part.items && part.items.length > 0);
+            if (parts.length === 0) return null;
             return (
-              <div key={key}>
-                <h2 className="font-semibold mb-2">{label}</h2>
-                <ul className="space-y-1 text-sm list-disc list-inside text-gray-700">
-                  {items.map((item, i) => (
-                    <li key={i}>{item}</li>
+              <div key={section.label}>
+                <h2 className="font-semibold mb-2">{section.label}</h2>
+                <div className="space-y-3">
+                  {parts.map((part) => (
+                    <div key={part.label}>
+                      <h3 className="text-xs font-medium text-gray-500 mb-1">{part.label}</h3>
+                      <ul className="space-y-1 text-sm list-disc list-inside text-gray-700">
+                        {part.items.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             );
           })}
