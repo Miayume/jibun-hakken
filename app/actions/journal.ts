@@ -51,5 +51,6 @@ export async function deleteEntry(entryId: string) {
   await runAnalysisForUser(userId);
 
   revalidatePath("/journal/calendar");
+  revalidatePath("/journal/day/[date]", "page");
   revalidatePath("/analysis");
 }

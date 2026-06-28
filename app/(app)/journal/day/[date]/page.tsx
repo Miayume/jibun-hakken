@@ -1,7 +1,8 @@
 import { getCurrentUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { deleteEntry } from "@/app/actions/journal";
-import { format } from "date-fns";
+import { format as formatTz } from "date-fns-tz";
+import { JST_TZ, jstDayRange } from "@/lib/datetime";
 import Link from "next/link";
 
 const FIELD_LABELS: Record<string, string> = {
@@ -25,8 +26,7 @@ export default async function DayPage({
 }) {
   const { date } = await params;
   const userId = await getCurrentUserId();
-  const dayStart = new Date(`${date}T00:00:00`);
-  const dayEnd = new Date(`${date}T23:59:59.999`);
+  const { start: dayStart, end: dayEnd } = jstDayRange(date);
 
   const entries = userId
     ? await prisma.entry.findMany({
@@ -40,7 +40,9 @@ export default async function DayPage({
       <Link href="/journal/calendar" className="text-sm hover:underline">
         ← カレンダーに戻る
       </Link>
-      <h1 className="text-xl font-bold mt-2 mb-6">{format(dayStart, "yyyy年M月d日")}の記録</h1>
+      <h1 className="text-xl font-bold mt-2 mb-6">
+        {Number(date.slice(0, 4))}年{Number(date.slice(5, 7))}月{Number(date.slice(8, 10))}日の記録
+      </h1>
 
       {entries.length === 0 && <p className="text-gray-500 text-sm">この日の記録はありません。</p>}
 
@@ -54,7 +56,8 @@ export default async function DayPage({
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-medium">
-                {entry.type === "wakuwaku" ? "ワクワク・幸せ" : "ストレス"} ・ {format(entry.createdAt, "HH:mm")}
+                {entry.type === "wakuwaku" ? "ワクワク・幸せ" : "ストレス"} ・{" "}
+                {formatTz(entry.createdAt, "HH:mm", { timeZone: JST_TZ })}
               </span>
               <form action={deleteEntry.bind(null, entry.id)}>
                 <button type="submit" className="text-xs text-red-600 hover:underline">

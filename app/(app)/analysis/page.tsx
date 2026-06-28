@@ -2,7 +2,8 @@ import { getCurrentUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { entryCountThresholds } from "@/lib/analysis/trigger";
 import type { AnalysisContent, AnalysisScope } from "@/lib/ai/types";
-import { format } from "date-fns";
+import { format as formatTz } from "date-fns-tz";
+import { JST_TZ } from "@/lib/datetime";
 import Link from "next/link";
 
 const SCOPE_LABELS: Record<AnalysisScope, string> = {
@@ -82,7 +83,7 @@ export default async function AnalysisPage({
           <div className="rounded border border-gray-200 bg-gray-50 p-4 text-sm">
             <p className="text-xs text-gray-500 mb-1">
               {TIER_LABELS[latest!.tier]} ・ {latest!.basedOnEntryCount}件の記録に基づく ・{" "}
-              {format(latest!.createdAt, "yyyy/MM/dd HH:mm")}時点
+              {formatTz(latest!.createdAt, "yyyy/MM/dd HH:mm", { timeZone: JST_TZ })}時点
             </p>
             <p>{content.summary}</p>
           </div>
