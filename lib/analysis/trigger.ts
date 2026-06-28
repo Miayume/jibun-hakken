@@ -29,46 +29,52 @@ function sliceForScope(
  * 異なるセットになる分だけ並列でAI分析を呼び出す。
  */
 export async function runAnalysisForUser(userId: string): Promise<void> {
-  const entries = (await prisma.entry.findMany({
-    where: { userId },
-    orderBy: { createdAt: "asc" },
-  })) as JournalEntryForAnalysis[];
+  try {
+    const entries = (await prisma.entry.findMany({
+      where: { userId },
+      orderBy: { createdAt: "asc" },
+    })) as JournalEntryForAnalysis[];
 
-  const tier = tierForCount(entries.length);
-  if (!tier) return;
+    const tier = tierForCount(entries.length);
+    if (!tier) return;
 
-  const provider = getAIProvider();
-  const scopes: AnalysisScope[] = ["recent30", "recent100", "all"];
+    const provider = getAIProvider();
+    const scopes: AnalysisScope[] = ["recent30", "recent100", "all"];
 
-  // 同じ件数(=同じ記録セット)のスコープはAPI呼び出しを1回にまとめる
-  const sliceLengthByScope = new Map(scopes.map((s) => [s, sliceForScope(entries, s).length]));
-  const uniqueLengths = [...new Set(sliceLengthByScope.values())];
+    // 同じ件数(=同じ記録セット)のスコープはAPI呼び出しを1回にまとめる
+    const sliceLengthByScope = new Map(scopes.map((s) => [s, sliceForScope(entries, s).length]));
+    const uniqueLengths = [...new Set(sliceLengthByScope.values())];
 
-  const contentByLength = new Map<number, AnalysisContent>(
+    const contentByLength = new Map<number, AnalysisContent>(
+      await Promise.all(
+        uniqueLengths.map(async (length) => {
+          const scopedEntries = entries.slice(entries.length - length);
+          const content = await provider.analyze({ entries: scopedEntries, tier, scope: "all" });
+          return [length, content] as const;
+        })
+      )
+    );
+
     await Promise.all(
-      uniqueLengths.map(async (length) => {
-        const scopedEntries = entries.slice(entries.length - length);
-        const content = await provider.analyze({ entries: scopedEntries, tier, scope: "all" });
-        return [length, content] as const;
+      scopes.map((scope) => {
+        const length = sliceLengthByScope.get(scope)!;
+        const content = contentByLength.get(length)!;
+        return prisma.analysisResult.create({
+          data: {
+            userId,
+            scope,
+            tier,
+            content: JSON.stringify(content),
+            basedOnEntryCount: length,
+          },
+        });
       })
-    )
-  );
-
-  await Promise.all(
-    scopes.map((scope) => {
-      const length = sliceLengthByScope.get(scope)!;
-      const content = contentByLength.get(length)!;
-      return prisma.analysisResult.create({
-        data: {
-          userId,
-          scope,
-          tier,
-          content: JSON.stringify(content),
-          basedOnEntryCount: length,
-        },
-      });
-    })
-  );
+    );
+  } catch (error) {
+    // 分析が失敗しても記録の保存自体は成功させる（AI側の一時的な障害・無料枠の上限などで
+    // ユーザーの記録が失われることがあってはならないため）
+    console.error("AI分析に失敗しました（記録の保存には影響しません）:", error);
+  }
 }
 
 export function entryCountThresholds() {

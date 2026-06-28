@@ -16,7 +16,9 @@ export class GeminiAIProvider implements AIProvider {
       );
     }
 
-    const model = process.env.GEMINI_MODEL ?? "gemini-2.0-flash";
+    // gemini-2.0-flash-lite は無料枠の1日あたりのリクエスト上限が高く、
+    // 本サービスのような軽量なJSON抽出タスクには十分な性能のため既定値とする
+    const model = process.env.GEMINI_MODEL ?? "gemini-2.0-flash-lite";
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
       {
