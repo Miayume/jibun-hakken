@@ -1,7 +1,7 @@
 import { getCurrentUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { entryCountThresholds } from "@/lib/analysis/trigger";
-import type { AnalysisContent, AnalysisScope } from "@/lib/ai/types";
+import type { AnalysisContent, AnalysisItem, AnalysisScope } from "@/lib/ai/types";
 import { format as formatTz } from "date-fns-tz";
 import { JST_TZ } from "@/lib/datetime";
 import Link from "next/link";
@@ -20,7 +20,7 @@ const TIER_LABELS: Record<string, string> = {
 
 const SECTIONS: {
   label: string;
-  parts: { label: string; get: (c: AnalysisContent) => string[] }[];
+  parts: { label: string; get: (c: AnalysisContent) => AnalysisItem[] }[];
 }[] = [
   {
     label: "仕事",
@@ -139,29 +139,41 @@ export default async function AnalysisPage({
             <p>{content.summary}</p>
           </div>
 
-          {SECTIONS.map((section) => {
-            const parts = section.parts
-              .map((part) => ({ label: part.label, items: part.get(content) }))
-              .filter((part) => part.items && part.items.length > 0);
-            if (parts.length === 0) return null;
-            return (
-              <div key={section.label}>
-                <h2 className="font-semibold mb-2">{section.label}</h2>
-                <div className="space-y-3">
-                  {parts.map((part) => (
-                    <div key={part.label}>
-                      <h3 className="text-xs font-medium text-gray-500 mb-1">{part.label}</h3>
-                      <ul className="space-y-1 text-sm list-disc list-inside text-gray-700">
-                        {part.items.map((item, i) => (
-                          <li key={i}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+          <div className="divide-y divide-gray-200 border border-gray-200 rounded">
+            {SECTIONS.map((section) => {
+              const parts = section.parts
+                .map((part) => ({ label: part.label, items: part.get(content) }))
+                .filter((part) => part.items && part.items.length > 0);
+              if (parts.length === 0) return null;
+              const totalCount = parts.reduce((sum, p) => sum + p.items.length, 0);
+              return (
+                <details key={section.label} className="group">
+                  <summary className="cursor-pointer list-none flex items-center justify-between px-4 py-3 font-semibold">
+                    <span>{section.label}</span>
+                    <span className="text-xs text-gray-400 font-normal">
+                      {totalCount}件 ・ タップで開く
+                    </span>
+                  </summary>
+                  <div className="px-4 pb-4 space-y-4">
+                    {parts.map((part) => (
+                      <div key={part.label}>
+                        <h3 className="text-xs font-medium text-gray-500 mb-2">{part.label}</h3>
+                        <div className="space-y-3">
+                          {part.items.map((item, i) => (
+                            <div key={i} className="border-l-2 border-gray-200 pl-3">
+                              <p className="text-sm font-semibold">{item.point}</p>
+                              <p className="text-xs text-gray-500 mt-0.5">{item.reason}</p>
+                              <p className="text-xs text-gray-400 italic mt-0.5">{item.insight}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              );
+            })}
+          </div>
 
           <p className="text-xs text-gray-400 pt-4 border-t">
             ※ この分析結果は、入力された記録のみに基づく参考情報です。医療・心理診断・カウンセリング・法律・投資等の専門的判断ではありません。最終的な判断はご自身でお願いします。

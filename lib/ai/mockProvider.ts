@@ -1,6 +1,7 @@
 import type {
   AIProvider,
   AnalysisContent,
+  AnalysisItem,
   AnalysisTier,
   JournalEntryForAnalysis,
 } from "@/lib/ai/types";
@@ -25,62 +26,75 @@ export class MockAIProvider implements AIProvider {
     const alone = wakuwaku.length - withOthers.length;
 
     const detailLevel = tier === "simple" ? 1 : tier === "detailed" ? 2 : 3;
-    const pick = (lines: string[]) => lines.slice(0, detailLevel + 1);
+    const pick = (items: AnalysisItem[]) => items.slice(0, detailLevel + 1);
 
     return {
       summary: `これまでに記録された${entries.length}件（ワクワク${wakuwaku.length}件・ストレス${stress.length}件）の記録から、傾向を分析しました。記録が増えるほど精度が上がります。`,
       work: {
-        suitableJobs: pick(["記録内容から、企画・アイデア出しを伴う仕事との相性が良い傾向があります。"]),
-        suitableRoles: pick(["教える・伝える役割に強みがある可能性があります。"]),
-        suitableWorkStyle: pick(["他者と協働するスタイルに充実感を見出す可能性があります。"]),
+        suitableJobs: pick([
+          { point: "企画・アイデア出しの仕事", reason: "ワクワクの記録に企画関連の出来事が多いから", insight: "そういう傾向が記録から読み取れます" },
+        ]),
+        suitableRoles: pick([{ point: "教える・伝える役割", reason: "知識を共有する出来事に満足度が高いから", insight: "そういう傾向が記録から読み取れます" }]),
+        suitableWorkStyle: pick([{ point: "協働するスタイル", reason: "他者と一緒に取り組む記録に充実感が見られるから", insight: "そういう傾向が記録から読み取れます" }]),
       },
       lifestyle: {
         suitableLifestyle: pick([
-          "規則的な生活リズムが幸福感の高さと結びついている可能性があります。",
+          { point: "規則的な生活リズム", reason: "生活リズムに関する記録と幸福感が結びついているから", insight: "そういう傾向が記録から読み取れます" },
         ]),
       },
       environment: {
         happyEnvironment: pick([
-          "屋外や開放的な場所での記録にワクワクが多く見られる傾向があります。",
+          { point: "屋外や開放的な場所", reason: "屋外での記録にワクワクが多く見られるから", insight: "そういう傾向が記録から読み取れます" },
         ]),
       },
       relationships: {
         happyRelationships: pick([
           withOthers.length >= alone
-            ? "一人で過ごす時間より、誰かと一緒にいる時間にワクワクを感じやすい傾向があります。"
-            : "一人で過ごす時間にも十分な満足感を得られている可能性があります。",
+            ? { point: "誰かと一緒にいる時間", reason: "一人より誰かと一緒の記録にワクワクが多いから", insight: "そういう傾向が記録から読み取れます" }
+            : { point: "一人で過ごす時間", reason: "一人の記録でも満足度が高いから", insight: "そういう傾向が記録から読み取れます" },
         ]),
         compatibility: pick([
-          "理解力が高いと感じる相手との対話で幸福度が上がる傾向が記録から推測されます。",
+          { point: "理解力が高い人と合う", reason: "対話が深い記録ほど幸福度が高いから", insight: "そういう傾向が記録から読み取れます" },
         ]),
       },
       happiness: {
-        conditions: pick(["達成感を伴う出来事の記録で幸福度が高い傾向があります。"]),
+        conditions: pick([{ point: "達成感のある出来事", reason: "達成に関する記録で幸福度が高いから", insight: "そういう傾向が記録から読み取れます" }]),
         suggestions: pick([
-          "ワクワクを感じる活動を週の予定に意識的に組み込むことが提案として考えられます。",
+          { point: "ワクワクを予定に組み込む", reason: "ワクワクした活動の記録が幸福度と結びついているから", insight: "そういう傾向が記録から読み取れます" },
         ]),
       },
       stress: {
         commonPatterns: pick([
           stress.length > 0
-            ? "予期しない変化や急な対応を求められる場面でストレスを感じやすい傾向があります。"
-            : "現時点ではストレスの記録が少なく、傾向を判断するにはさらに記録が必要です。",
+            ? { point: "予期しない変化", reason: "急な対応を求められた記録にストレスが多いから", insight: "そういう傾向が記録から読み取れます" }
+            : { point: "判断にはまだ記録が必要", reason: "ストレスの記録がまだ少ないから", insight: "そういう傾向が記録から読み取れます" },
         ]),
-        growthStress: pick(["責任を伴う課題への対応が、後に成長として振り返られている可能性があります。"]),
-        avoidStress: pick(["人間関係に関するストレスは避けた方が良い傾向が記録から推測されます。"]),
+        growthStress: pick([
+          { point: "責任を伴う課題", reason: "対応後に成長として振り返られている記録があるから", insight: "そういう傾向が記録から読み取れます" },
+        ]),
+        avoidStress: pick([
+          { point: "人間関係のストレス", reason: "人間関係に関するストレスの記録が見られるから", insight: "そういう傾向が記録から読み取れます" },
+        ]),
       },
       values: {
-        current: pick(["成長や挑戦を大切にする価値観が記録から推測されます。"]),
-        changeOverTime: tier === "full" ? pick(["記録期間を通じて、挑戦を重視する価値観がより強まっている可能性があります。"]) : [],
+        current: pick([{ point: "成長や挑戦", reason: "挑戦に関する記録が複数あるから", insight: "そういう傾向が記録から読み取れます" }]),
+        changeOverTime:
+          tier === "full"
+            ? pick([{ point: "挑戦をより重視する変化", reason: "記録期間の後半に挑戦への言及が増えているから", insight: "そういう傾向が記録から読み取れます" }])
+            : [],
       },
       thinkingAndAction: {
-        problemApproach: pick(["課題に直面したとき、すぐに行動して解決しようとする傾向が記録から見られます。"]),
-        futurePatterns: pick(["新しいことに挑戦する行動パターンが繰り返し見られます。"]),
-        actionSuggestions: pick(["ワクワクを感じた活動を記録し、再現できるよう意識することが提案として考えられます。"]),
+        problemApproach: pick([
+          { point: "すぐに行動して解決", reason: "課題への対応を記録した内容に行動の早さが見られるから", insight: "そういう傾向が記録から読み取れます" },
+        ]),
+        futurePatterns: pick([{ point: "新しいことへの挑戦", reason: "挑戦に関する記録が繰り返し見られるから", insight: "そういう傾向が記録から読み取れます" }]),
+        actionSuggestions: pick([
+          { point: "ワクワクの記録を増やす", reason: "ワクワクした活動の記録が幸福度と結びついているから", insight: "そういう傾向が記録から読み取れます" },
+        ]),
       },
       strengths: pick([
-        "記録から、人に教える・伝えることに強みがある可能性があります。",
-        "新しい状況に適応する力に強みがある傾向が見られます。",
+        { point: "教える・伝える力", reason: "知識を共有する記録に満足度が高いから", insight: "そういう傾向が記録から読み取れます" },
+        { point: "新しい状況への適応力", reason: "変化のある記録にも前向きな反応が見られるから", insight: "そういう傾向が記録から読み取れます" },
       ]),
     };
   }

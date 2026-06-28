@@ -17,42 +17,48 @@ export interface JournalEntryForAnalysis {
   createdAt: Date;
 }
 
+export interface AnalysisItem {
+  point: string; // 短い結論（5〜15字程度のキーワード・フレーズ）
+  reason: string; // 記録の具体的な内容に基づいた、なぜそう思ったかの一文
+  insight: string; // そこから読み取れる、その人についての一段深い解釈（一文）
+}
+
 export interface AnalysisContent {
   summary: string;
   work: {
-    suitableJobs: string[]; // 自分に合う仕事
-    suitableRoles: string[]; // 自分に合う役割
-    suitableWorkStyle: string[]; // 自分に合う働き方
+    suitableJobs: AnalysisItem[]; // 自分に合う仕事
+    suitableRoles: AnalysisItem[]; // 自分に合う役割
+    suitableWorkStyle: AnalysisItem[]; // 自分に合う働き方
   };
   lifestyle: {
-    suitableLifestyle: string[]; // 自分に合うライフスタイル
+    suitableLifestyle: AnalysisItem[]; // 自分に合うライフスタイル
   };
   environment: {
-    happyEnvironment: string[]; // 自分が幸せになれる環境
+    happyEnvironment: AnalysisItem[]; // 自分が幸せになれる環境
   };
   relationships: {
-    happyRelationships: string[]; // 自分が幸せになれる人間関係
-    compatibility: string[]; // どんな人と相性が良いか・悪いか
+    happyRelationships: AnalysisItem[]; // 自分が幸せになれる人間関係
+    compatibility: AnalysisItem[]; // どんな人と相性が良いか・悪いか
   };
   happiness: {
-    conditions: string[]; // 自分が幸福を感じる条件
-    suggestions: string[]; // 幸福を感じる時間・体験を増やす具体的な提案
+    conditions: AnalysisItem[]; // 自分が幸福を感じる条件
+    suggestions: AnalysisItem[]; // 幸福を感じる時間・体験を増やす具体的な提案
   };
   stress: {
-    commonPatterns: string[]; // ストレスを感じる共通点
-    growthStress: string[]; // 成長につながるストレス
-    avoidStress: string[]; // 避けるべきストレス
+    commonPatterns: AnalysisItem[]; // ストレスを感じる共通点
+    growthStress: AnalysisItem[]; // 成長につながるストレス
+    avoidStress: AnalysisItem[]; // 避けるべきストレス
   };
   values: {
-    current: string[]; // 自分の価値観
-    changeOverTime: string[]; // 時間とともに変化した価値観
+    current: AnalysisItem[]; // 自分の価値観
+    changeOverTime: AnalysisItem[]; // 時間とともに変化した価値観
   };
   thinkingAndAction: {
-    problemApproach: string[]; // 問題への向き合い方
-    futurePatterns: string[]; // 将来の目標や行動パターン
-    actionSuggestions: string[]; // 今後の行動への具体的な提案
+    problemApproach: AnalysisItem[]; // 問題への向き合い方
+    futurePatterns: AnalysisItem[]; // 将来の目標や行動パターン
+    actionSuggestions: AnalysisItem[]; // 今後の行動への具体的な提案
   };
-  strengths: string[]; // 自分の強み
+  strengths: AnalysisItem[]; // 自分の強み
 }
 
 export interface AIProvider {
