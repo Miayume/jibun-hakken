@@ -16,23 +16,30 @@ export async function addEntry(formData: FormData) {
   if (!userId) redirect("/");
 
   const type = formData.get("type") === "stress" ? "stress" : "wakuwaku";
+  const nextType = type === "wakuwaku" ? "stress" : "wakuwaku";
+
+  const what = emptyToNull(formData.get("what"));
+  const doingWhat = emptyToNull(formData.get("doingWhat"));
+  const withWho = emptyToNull(formData.get("withWho"));
+  const whoPerson = emptyToNull(formData.get("whoPerson"));
+  const whoGoodPoint = emptyToNull(formData.get("whoGoodPoint"));
+  const whereWas = emptyToNull(formData.get("whereWas"));
+  const whyFeeling = emptyToNull(formData.get("whyFeeling"));
+  const whyStress = emptyToNull(formData.get("whyStress"));
+  const mostImpressive = emptyToNull(formData.get("mostImpressive"));
+  const futureUseful = emptyToNull(formData.get("futureUseful"));
+  const futureImprove = emptyToNull(formData.get("futureImprove"));
+
+  // 全フィールドが一致する記録が既にある場合は重複として保存しない
+  const duplicate = await prisma.entry.findFirst({
+    where: { userId, type, what, doingWhat, withWho, whoPerson, whoGoodPoint, whereWas, whyFeeling, whyStress, mostImpressive, futureUseful, futureImprove },
+  });
+  if (duplicate) {
+    redirect(`/journal/new?duplicate=1&type=${nextType}`);
+  }
 
   await prisma.entry.create({
-    data: {
-      userId,
-      type,
-      what: emptyToNull(formData.get("what")),
-      doingWhat: emptyToNull(formData.get("doingWhat")),
-      withWho: emptyToNull(formData.get("withWho")),
-      whoPerson: emptyToNull(formData.get("whoPerson")),
-      whoGoodPoint: emptyToNull(formData.get("whoGoodPoint")),
-      whereWas: emptyToNull(formData.get("whereWas")),
-      whyFeeling: emptyToNull(formData.get("whyFeeling")),
-      whyStress: emptyToNull(formData.get("whyStress")),
-      mostImpressive: emptyToNull(formData.get("mostImpressive")),
-      futureUseful: emptyToNull(formData.get("futureUseful")),
-      futureImprove: emptyToNull(formData.get("futureImprove")),
-    },
+    data: { userId, type, what, doingWhat, withWho, whoPerson, whoGoodPoint, whereWas, whyFeeling, whyStress, mostImpressive, futureUseful, futureImprove },
   });
 
   await runAnalysisForUser(userId);
@@ -40,7 +47,7 @@ export async function addEntry(formData: FormData) {
   revalidatePath("/journal/new");
   revalidatePath("/journal/calendar");
   revalidatePath("/analysis");
-  redirect("/journal/new?saved=1");
+  redirect(`/journal/new?saved=1&type=${nextType}`);
 }
 
 export async function deleteEntry(entryId: string) {
