@@ -23,6 +23,14 @@ const SECTIONS: {
   parts: { label: string; get: (c: AnalysisContent) => AnalysisItem[] }[];
 }[] = [
   {
+    label: "変化・成長",
+    parts: [
+      { label: "価値観・優先順位の変化", get: (c) => c.trends?.valueChanges ?? [] },
+      { label: "ストレスが増えているパターン", get: (c) => c.trends?.stressPatterns ?? [] },
+      { label: "充実していた日の共通点", get: (c) => c.trends?.bestDayTraits ?? [] },
+    ],
+  },
+  {
     label: "仕事",
     parts: [
       { label: "自分に合う仕事", get: (c) => c.work.suitableJobs },
@@ -138,6 +146,26 @@ export default async function AnalysisPage({
             </p>
             <p>{content.summary}</p>
           </div>
+
+          {content.nextActions && content.nextActions.length > 0 && (
+            <div className="rounded border border-blue-200 bg-blue-50 p-4">
+              <h2 className="text-sm font-bold text-blue-800 mb-3">今週やってみること</h2>
+              <div className="space-y-3">
+                {content.nextActions.map((item, i) => (
+                  <div key={i} className="flex gap-3">
+                    <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-blue-200 text-blue-800 text-xs flex items-center justify-center font-bold">
+                      {i + 1}
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-blue-900">{item.point}</p>
+                      <p className="text-xs text-blue-600 mt-0.5">{item.reason}</p>
+                      <p className="text-xs text-blue-500 italic mt-0.5">{item.insight}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="divide-y divide-gray-200 border border-gray-200 rounded">
             {SECTIONS.map((section) => {

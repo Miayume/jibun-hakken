@@ -1,9 +1,9 @@
 import type { AnalysisTier, JournalEntryForAnalysis } from "@/lib/ai/types";
 
 const TIER_INSTRUCTIONS: Record<AnalysisTier, string> = {
-  simple: "各項目につき1つだけ、最も確信度の高い傾向を述べてください。記録が少ないため確信が持てない項目は、空配列 [] にしてください。",
-  detailed: "各項目につき2〜3個述べてください。",
-  full: "各項目につき3〜5個述べてください。「時間とともに変化した価値観」は、記録の前半と後半を比較して変化があれば述べてください。",
+  simple: "各項目につき1つだけ、最も確信度の高い傾向を述べてください。記録が少ないため確信が持てない項目は、空配列 [] にしてください。trendsの各項目・nextActionsは記録が少ないため空配列 [] にしてください。",
+  detailed: "各項目につき2〜3個述べてください。trendsは記録の前半と後半を比べて変化を述べてください（変化が読み取れない場合は空配列）。nextActionsは2〜3個述べてください。",
+  full: "各項目につき3〜5個述べてください。trendsは記録の前半と後半、また時間の流れに沿った変化を詳しく述べてください。nextActionsは3〜5個、できるだけ具体的な行動（いつ・何をする）を述べてください。",
 };
 
 export const SYSTEM_PROMPT = `あなたは自己理解支援アプリのAI分析エンジンです。
@@ -37,6 +37,20 @@ export const SYSTEM_PROMPT = `あなたは自己理解支援アプリのAI分析
   "point": "自然が多く美しい場所",
   "reason": "ラベンダーファームの香りと景色に癒しを感じていたから",
   "insight": "五感で感じる心地よさを大切にする人なのかもしれません"
+}
+
+nextActionsの良い例（行動が具体的で、記録から来ている理由が明確な場合）:
+{
+  "point": "週1回、自然の多い場所に行く時間を作る",
+  "reason": "ラベンダーファームや公園での記録に幸福度が高いものが多いから",
+  "insight": "実際に行ってみることで、どんな自然環境が一番自分に合うか分かってくるかもしれません"
+}
+
+trendsのvalueChangesの良い例（前半と後半で変化が読み取れる場合）:
+{
+  "point": "人と会うことをより重視するようになった",
+  "reason": "記録の前半は一人での活動が多かったのに、後半は誰かと一緒の記録が増えてワクワク度も上がっているから",
+  "insight": "人との関わりに対する見方や価値観が少しずつ変化しているのかもしれません"
 }`;
 
 export function buildUserPrompt(
@@ -103,7 +117,13 @@ ${entriesText}
     "futurePatterns": [{ "point": "string", "reason": "string", "insight": "string" }],     // 将来の目標や行動パターン
     "actionSuggestions": [{ "point": "string", "reason": "string", "insight": "string" }]   // 今後の行動への具体的な提案
   },
-  "strengths": [{ "point": "string", "reason": "string", "insight": "string" }]             // 自分の強み
+  "strengths": [{ "point": "string", "reason": "string", "insight": "string" }],            // 自分の強み
+  "trends": {
+    "valueChanges": [{ "point": "string", "reason": "string", "insight": "string" }],       // 価値観・優先順位の変化（記録の前半と後半を比較。変化なければ空配列）
+    "stressPatterns": [{ "point": "string", "reason": "string", "insight": "string" }],     // ストレスが増えているパターン（時系列で増加傾向があるもの。なければ空配列）
+    "bestDayTraits": [{ "point": "string", "reason": "string", "insight": "string" }]       // 一番充実していた・ワクワクした記録の共通点
+  },
+  "nextActions": [{ "point": "string", "reason": "string", "insight": "string" }]           // 次の1週間で試すとよい具体的な行動（pointは行動そのもの、reasonは記録のどんな傾向から来ているか、insightは試すことで何が分かりそうか）
 }`;
 }
 

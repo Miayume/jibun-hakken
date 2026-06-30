@@ -59,6 +59,12 @@ export interface AnalysisContent {
     actionSuggestions: AnalysisItem[]; // 今後の行動への具体的な提案
   };
   strengths: AnalysisItem[]; // 自分の強み
+  trends: {
+    valueChanges: AnalysisItem[];   // 価値観・優先順位の変化（記録の前半と後半を比較）
+    stressPatterns: AnalysisItem[]; // ストレスが増えているパターン
+    bestDayTraits: AnalysisItem[];  // 一番充実していた日の共通点
+  };
+  nextActions: AnalysisItem[]; // 次の1週間で試すとよい具体的な行動
 }
 
 export interface AIProvider {
