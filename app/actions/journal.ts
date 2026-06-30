@@ -35,7 +35,14 @@ export async function addEntry(formData: FormData) {
     },
   });
 
-  await runAnalysisForUser(userId);
+  // 閾値を超えた瞬間だけ分析を実行（毎回呼ぶと無料枠をすぐに消費するため）
+  // 対象: 5件・10件・30件の初回到達時、以降は30件を超えて20件ごと（50・70・90...）
+  const count = await prisma.entry.count({ where: { userId } });
+  const atThreshold = [5, 10, 30].includes(count);
+  const periodicAfter30 = count > 30 && (count - 30) % 20 === 0;
+  if (atThreshold || periodicAfter30) {
+    await runAnalysisForUser(userId);
+  }
 
   revalidatePath("/journal/new");
   revalidatePath("/journal/calendar");
@@ -48,7 +55,6 @@ export async function deleteEntry(entryId: string) {
   if (!userId) redirect("/");
 
   await prisma.entry.deleteMany({ where: { id: entryId, userId } });
-  await runAnalysisForUser(userId);
 
   revalidatePath("/journal/calendar");
   revalidatePath("/journal/day/[date]", "page");
