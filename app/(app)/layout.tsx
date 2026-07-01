@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { href: "/journal/new", label: "記録" },
   { href: "/journal/calendar", label: "カレンダー" },
   { href: "/analysis", label: "分析" },
+  { href: "/chat", label: "相談" },
   { href: "/settings", label: "設定" },
 ];
 
