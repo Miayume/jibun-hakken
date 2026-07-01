@@ -52,7 +52,8 @@ const SECTIONS: {
     label: "人間関係",
     parts: [
       { label: "自分が幸せになれる人間関係", get: (c) => c.relationships.happyRelationships },
-      { label: "相性が良い・悪い人", get: (c) => c.relationships.compatibility },
+      { label: "相性が良い人", get: (c) => c.relationships.compatibilityGood ?? [] },
+      { label: "相性が悪い人", get: (c) => c.relationships.compatibilityBad ?? c.relationships.compatibility ?? [] },
     ],
   },
   {

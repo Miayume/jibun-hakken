@@ -169,7 +169,8 @@ ${entriesText}
   },
   "relationships": {
     "happyRelationships": [{ "point": "string", "reason": "string", "insight": "string" }], // 自分が幸せになれる人間関係
-    "compatibility": [{ "point": "string", "reason": "string", "insight": "string" }]       // どんな人と相性が良いか・悪いか
+    "compatibilityGood": [{ "point": "string", "reason": "string", "insight": "string" }],  // 相性が良い人（pointは「〜な人」の形で）
+    "compatibilityBad": [{ "point": "string", "reason": "string", "insight": "string" }]    // 相性が悪い人（pointは「〜な人」の形で）
   },
   "happiness": {
     "conditions": [{ "point": "string", "reason": "string", "insight": "string" }],         // 自分が幸福を感じる条件

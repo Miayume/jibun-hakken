@@ -39,7 +39,9 @@ export interface AnalysisContent {
   };
   relationships: {
     happyRelationships: AnalysisItem[]; // 自分が幸せになれる人間関係
-    compatibility: AnalysisItem[]; // どんな人と相性が良いか・悪いか
+    compatibilityGood: AnalysisItem[]; // 相性が良い人
+    compatibilityBad: AnalysisItem[];  // 相性が悪い人
+    compatibility?: AnalysisItem[];    // 旧フォーマット（後方互換）
   };
   happiness: {
     conditions: AnalysisItem[]; // 自分が幸福を感じる条件

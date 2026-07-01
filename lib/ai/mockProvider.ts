@@ -55,8 +55,11 @@ export class MockAIProvider implements AIProvider {
             ? { point: "誰かと一緒にいる時間", reason: "一人より誰かと一緒の記録にワクワクが多いから", insight: "そういう傾向が記録から読み取れます" }
             : { point: "一人で過ごす時間", reason: "一人の記録でも満足度が高いから", insight: "そういう傾向が記録から読み取れます" },
         ]),
-        compatibility: pick([
-          { point: "理解力が高い人と合う", reason: "対話が深い記録ほど幸福度が高いから", insight: "そういう傾向が記録から読み取れます" },
+        compatibilityGood: pick([
+          { point: "理解力が高い人", reason: "対話が深い記録ほど幸福度が高いから", insight: "そういう傾向が記録から読み取れます" },
+        ]),
+        compatibilityBad: pick([
+          { point: "話が通じない人", reason: "理解力の低い相手との記録にストレスが多いから", insight: "そういう傾向が記録から読み取れます" },
         ]),
       },
       happiness: {
