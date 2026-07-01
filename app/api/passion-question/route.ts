@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { thinkingConfig: { thinkingBudget: 0 } },
       }),
     }
   );
