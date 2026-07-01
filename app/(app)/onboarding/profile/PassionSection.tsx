@@ -92,44 +92,6 @@ export default function PassionSection() {
         )}
       </div>
 
-      <div>
-        <h2 className="font-medium mb-1">補足質問（任意）</h2>
-        <p className="text-xs text-gray-500 mb-3">
-          答えが重なる部分が、あなたにとって大切にすべき領域です。
-        </p>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm mb-1">
-              今の仕事や日常で、同じ興奮・ワクワクを感じた瞬間はいつですか？
-            </label>
-            <textarea
-              name="supplementQ1"
-              rows={2}
-              className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-sm mb-1">
-              お金をもらわなくてもやり続けられることは何ですか？
-            </label>
-            <textarea
-              name="supplementQ2"
-              rows={2}
-              className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-sm mb-1">
-              他の人が苦痛に感じることを、自分だけ楽しいと感じることは何ですか？
-            </label>
-            <textarea
-              name="supplementQ3"
-              rows={2}
-              className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
-            />
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
