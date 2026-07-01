@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface PassionItem {
   item: string;
@@ -117,6 +117,13 @@ export default function PassionSection({ initialPassions }: { initialPassions?: 
   const [passions, setPassions] = useState<PassionItem[]>(
     initialPassions && initialPassions.length > 0 ? initialPassions : [empty()]
   );
+  const hiddenRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (hiddenRef.current) {
+      hiddenRef.current.value = JSON.stringify(passions);
+    }
+  }, [passions]);
 
   function update(index: number, field: keyof PassionItem, value: string) {
     setPassions((prev) =>
@@ -126,7 +133,7 @@ export default function PassionSection({ initialPassions }: { initialPassions?: 
 
   return (
     <div className="space-y-6">
-      <input type="hidden" name="passions" value={JSON.stringify(passions)} />
+      <input type="hidden" name="passions" ref={hiddenRef} defaultValue={JSON.stringify(passions)} />
 
       <div>
         <p className="text-sm text-gray-700 leading-relaxed mb-4 p-4 bg-amber-50 rounded border border-amber-100">

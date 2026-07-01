@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const WORDS = [
   "挑戦する", "達成する", "実行する", "新しくする", "分析する",
@@ -11,6 +11,13 @@ const WORDS = [
 
 export default function WordSelection({ initialWords }: { initialWords?: string[] | null }) {
   const [selected, setSelected] = useState<string[]>(initialWords ?? []);
+  const hiddenRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (hiddenRef.current) {
+      hiddenRef.current.value = JSON.stringify(selected);
+    }
+  }, [selected]);
 
   function toggle(word: string) {
     setSelected((prev) =>
@@ -20,7 +27,7 @@ export default function WordSelection({ initialWords }: { initialWords?: string[
 
   return (
     <div className="space-y-3">
-      <input type="hidden" name="personalityWords" value={JSON.stringify(selected)} />
+      <input type="hidden" name="personalityWords" ref={hiddenRef} defaultValue={JSON.stringify(selected)} />
       <h2 className="font-medium">9. あなたらしいと思う言葉を選んでください</h2>
       <p className="text-xs text-gray-500">複数選択できます</p>
       <div className="flex flex-wrap gap-2">

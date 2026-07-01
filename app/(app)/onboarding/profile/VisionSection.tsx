@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const QUESTIONS = [
   "最高に自分らしく生きている自分は、どのような状況ですか？",
@@ -17,6 +17,15 @@ export default function VisionSection({ initialAnswers }: { initialAnswers?: Rec
   const [answers, setAnswers] = useState<string[]>(
     Array(8).fill("").map((_, i) => initialAnswers?.[`q${i + 1}`] ?? "")
   );
+  const hiddenRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (hiddenRef.current) {
+      hiddenRef.current.value = JSON.stringify(
+        Object.fromEntries(answers.map((a, i) => [`q${i + 1}`, a]))
+      );
+    }
+  }, [answers]);
 
   function update(index: number, value: string) {
     setAnswers((prev) => prev.map((a, i) => (i === index ? value : a)));
@@ -27,7 +36,8 @@ export default function VisionSection({ initialAnswers }: { initialAnswers?: Rec
       <input
         type="hidden"
         name="visionAnswers"
-        value={JSON.stringify(
+        ref={hiddenRef}
+        defaultValue={JSON.stringify(
           Object.fromEntries(answers.map((a, i) => [`q${i + 1}`, a]))
         )}
       />
