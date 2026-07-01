@@ -25,14 +25,14 @@ function PassionCard({
   const [q3Loading, setQ3Loading] = useState(false);
   const [q4Loading, setQ4Loading] = useState(false);
 
-  async function generateQ3() {
-    if (!passion.why1.trim()) return;
+  async function generateQ3(answer: string) {
+    if (!answer.trim()) return;
     setQ3Loading(true);
     try {
       const res = await fetch("/api/passion-question", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ answer: passion.why1 }),
+        body: JSON.stringify({ answer }),
       });
       const { question } = await res.json();
       if (question) setQ3Label(question);
@@ -41,14 +41,14 @@ function PassionCard({
     }
   }
 
-  async function generateQ4() {
-    if (!passion.why2.trim()) return;
+  async function generateQ4(answer: string) {
+    if (!answer.trim()) return;
     setQ4Loading(true);
     try {
       const res = await fetch("/api/passion-question", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ answer: passion.why2 }),
+        body: JSON.stringify({ answer }),
       });
       const { question } = await res.json();
       if (question) setQ4Label(question);
@@ -80,7 +80,7 @@ function PassionCard({
           type="text"
           value={passion.why1}
           onChange={(e) => onChange("why1", e.target.value)}
-          onBlur={generateQ3}
+          onBlur={(e) => generateQ3(e.target.value)}
           className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
         />
       </div>
@@ -93,7 +93,7 @@ function PassionCard({
           type="text"
           value={passion.why2}
           onChange={(e) => onChange("why2", e.target.value)}
-          onBlur={generateQ4}
+          onBlur={(e) => generateQ4(e.target.value)}
           className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
           disabled={q3Loading}
         />
