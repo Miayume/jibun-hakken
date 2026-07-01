@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 
 interface PassionItem {
   item: string;
@@ -67,6 +67,7 @@ function PassionCard({
         <label className="block text-sm mb-1">今まで時間を忘れて没頭したものは何ですか？</label>
         <input
           type="text"
+          name={`p${index}_item`}
           value={passion.item}
           onChange={(e) => onChange("item", e.target.value)}
           className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
@@ -78,6 +79,7 @@ function PassionCard({
         <label className="block text-sm mb-1">なぜ、それに魅力を感じていたと思いますか？</label>
         <input
           type="text"
+          name={`p${index}_why1`}
           value={passion.why1}
           onChange={(e) => onChange("why1", e.target.value)}
           onBlur={(e) => generateQ3(e.target.value)}
@@ -91,6 +93,7 @@ function PassionCard({
         </label>
         <input
           type="text"
+          name={`p${index}_why2`}
           value={passion.why2}
           onChange={(e) => onChange("why2", e.target.value)}
           onBlur={(e) => generateQ4(e.target.value)}
@@ -104,6 +107,7 @@ function PassionCard({
         </label>
         <input
           type="text"
+          name={`p${index}_why3`}
           value={passion.why3}
           onChange={(e) => onChange("why3", e.target.value)}
           className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
@@ -117,13 +121,6 @@ export default function PassionSection({ initialPassions }: { initialPassions?: 
   const [passions, setPassions] = useState<PassionItem[]>(
     initialPassions && initialPassions.length > 0 ? initialPassions : [empty()]
   );
-  const hiddenRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (hiddenRef.current) {
-      hiddenRef.current.value = JSON.stringify(passions);
-    }
-  }, [passions]);
 
   function update(index: number, field: keyof PassionItem, value: string) {
     setPassions((prev) =>
@@ -133,8 +130,6 @@ export default function PassionSection({ initialPassions }: { initialPassions?: 
 
   return (
     <div className="space-y-6">
-      <input type="hidden" name="passions" ref={hiddenRef} defaultValue={JSON.stringify(passions)} />
-
       <div>
         <p className="text-sm text-gray-700 leading-relaxed mb-4 p-4 bg-amber-50 rounded border border-amber-100">
           好きだと感じるものには、あなた自身の価値観や感性が表れています。何が好きなのかを深く知ることで、自分らしさが見えてきます。そして、その自分らしさの中に、あなたの才能があります。

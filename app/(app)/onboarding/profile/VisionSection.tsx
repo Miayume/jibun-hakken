@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 
 const QUESTIONS = [
   "最高に自分らしく生きている自分は、どのような状況ですか？",
@@ -17,15 +17,6 @@ export default function VisionSection({ initialAnswers }: { initialAnswers?: Rec
   const [answers, setAnswers] = useState<string[]>(
     Array(8).fill("").map((_, i) => initialAnswers?.[`q${i + 1}`] ?? "")
   );
-  const hiddenRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (hiddenRef.current) {
-      hiddenRef.current.value = JSON.stringify(
-        Object.fromEntries(answers.map((a, i) => [`q${i + 1}`, a]))
-      );
-    }
-  }, [answers]);
 
   function update(index: number, value: string) {
     setAnswers((prev) => prev.map((a, i) => (i === index ? value : a)));
@@ -33,14 +24,6 @@ export default function VisionSection({ initialAnswers }: { initialAnswers?: Rec
 
   return (
     <div className="space-y-4">
-      <input
-        type="hidden"
-        name="visionAnswers"
-        ref={hiddenRef}
-        defaultValue={JSON.stringify(
-          Object.fromEntries(answers.map((a, i) => [`q${i + 1}`, a]))
-        )}
-      />
       <h2 className="font-medium">10. 最高の自分をイメージしてください</h2>
       <div className="space-y-4">
         {QUESTIONS.map((q, i) => (
@@ -48,6 +31,7 @@ export default function VisionSection({ initialAnswers }: { initialAnswers?: Rec
             <label className="block text-sm mb-1">{q}</label>
             <input
               type="text"
+              name={`vision_q${i + 1}`}
               value={answers[i]}
               onChange={(e) => update(i, e.target.value)}
               className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
