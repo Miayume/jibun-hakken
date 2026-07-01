@@ -75,11 +75,8 @@ export async function saveActionReflection(formData: FormData) {
       whyFeeling: reflection,
     },
   });
-
-  after(async () => {
-    await runAnalysisForUser(userId);
-    revalidatePath("/analysis");
-  });
+  // 再分析は走らせない（分析が変わると今週やってみることの文章が変わり、
+  // localStorageのキーと一致しなくなって回答済み表示がリセットされるため）
 }
 
 export async function deleteEntry(entryId: string) {
