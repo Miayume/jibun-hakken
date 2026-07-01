@@ -54,6 +54,29 @@ export async function addEntry(formData: FormData) {
   redirect(`/journal/new?saved=1&type=${nextType}`);
 }
 
+export async function saveActionReflection(formData: FormData) {
+  const userId = await getCurrentUserId();
+  if (!userId) return;
+
+  const actionPoint = (formData.get("actionPoint") as string)?.trim();
+  const reflection = (formData.get("reflection") as string)?.trim();
+  if (!reflection) return;
+
+  await prisma.entry.create({
+    data: {
+      userId,
+      type: "wakuwaku",
+      what: `【今週やってみること】${actionPoint}`,
+      whyFeeling: reflection,
+    },
+  });
+
+  after(async () => {
+    await runAnalysisForUser(userId);
+    revalidatePath("/analysis");
+  });
+}
+
 export async function deleteEntry(entryId: string) {
   const userId = await getCurrentUserId();
   if (!userId) redirect("/");
