@@ -95,7 +95,6 @@ function PassionCard({
           onChange={(e) => onChange("why2", e.target.value)}
           onBlur={(e) => generateQ4(e.target.value)}
           className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
-          disabled={q3Loading}
         />
       </div>
 
@@ -108,7 +107,6 @@ function PassionCard({
           value={passion.why3}
           onChange={(e) => onChange("why3", e.target.value)}
           className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
-          disabled={q4Loading}
         />
       </div>
     </div>
