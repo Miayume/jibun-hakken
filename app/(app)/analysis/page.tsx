@@ -93,10 +93,10 @@ const SECTIONS: {
 export default async function AnalysisPage({
   searchParams,
 }: {
-  searchParams: Promise<{ scope?: string }>;
+  searchParams: Promise<{ scope?: string; refreshing?: string }>;
 }) {
   const userId = await getCurrentUserId();
-  const { scope: scopeParam } = await searchParams;
+  const { scope: scopeParam, refreshing } = await searchParams;
   const scope: AnalysisScope =
     scopeParam === "recent100" || scopeParam === "all" ? scopeParam : "recent30";
 
@@ -115,6 +115,12 @@ export default async function AnalysisPage({
   return (
     <main className="mx-auto max-w-2xl px-6 py-8">
       <h1 className="text-xl font-bold mb-4">分析結果</h1>
+
+      {refreshing === "1" && (
+        <div className="mb-4 rounded border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          分析を更新中です。1〜2分後にページを再読み込みすると新しい結果が表示されます。
+        </div>
+      )}
 
       <div className="flex gap-2 mb-6 flex-wrap items-center justify-between">
         <div className="flex gap-2">
