@@ -18,9 +18,11 @@ function QuestionForm({ actionPoint, question }: { actionPoint: string; question
   }, [key]);
 
   async function handleSubmit(formData: FormData) {
-    await saveActionReflection(formData);
+    // localStorageへの書き込みをサーバーアクションより先に行う
+    // （revalidatePathによるページリフレッシュが先に走るとsetが間に合わないため）
     localStorage.setItem(key, "1");
     setAnswered(true);
+    await saveActionReflection(formData);
   }
 
   if (answered) {
