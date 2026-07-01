@@ -1,9 +1,42 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useOptimistic } from "react";
 import { useFormStatus } from "react-dom";
 import { saveActionReflection } from "@/app/actions/journal";
 import type { AnalysisItem } from "@/lib/ai/types";
+
+function QuestionFormContent({
+  question,
+  answered,
+}: {
+  question: string;
+  answered: boolean;
+}) {
+  const { pending } = useFormStatus();
+
+  if (answered) {
+    return <p className="mt-2 text-xs text-green-600">✓ 回答済み</p>;
+  }
+
+  return (
+    <>
+      <p className="text-sm font-medium text-blue-900">{question}</p>
+      <textarea
+        name="reflection"
+        rows={3}
+        placeholder="思いつくまま自由に書いてください。書かなくてもOKですが、書くほどあなたに合った分析の精度が上がります。"
+        className="w-full rounded border border-blue-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+      />
+      <button
+        type="submit"
+        disabled={pending}
+        className="rounded bg-blue-600 text-white px-4 py-1.5 text-xs font-medium hover:bg-blue-700 disabled:opacity-50"
+      >
+        {pending ? "保存中..." : "記録する"}
+      </button>
+    </>
+  );
+}
 
 function QuestionForm({
   actionPoint,
@@ -18,50 +51,21 @@ function QuestionForm({
   analysisId: string;
   questionIndex: number;
 }) {
-  const [answered, setAnswered] = useState(preAnswered);
+  const [optimisticAnswered, setOptimisticAnswered] = useOptimistic(preAnswered);
 
-  // preAnsweredがtrueになったら（サーバー側から回答済みと判明）即反映
-  useEffect(() => {
-    if (preAnswered) setAnswered(true);
-  }, [preAnswered]);
-
-  async function handleSubmit(formData: FormData) {
-    setAnswered(true);
+  async function action(formData: FormData) {
+    setOptimisticAnswered(true);
     await saveActionReflection(formData);
   }
 
-  if (answered) {
-    return <p className="mt-2 text-xs text-green-600">✓ 回答済み</p>;
-  }
-
   return (
-    <form action={handleSubmit} className="mt-3 space-y-2">
+    <form action={action} className="mt-3 space-y-2">
       <input type="hidden" name="actionPoint" value={actionPoint} />
       <input type="hidden" name="question" value={question} />
       <input type="hidden" name="analysisId" value={analysisId} />
       <input type="hidden" name="questionIndex" value={questionIndex} />
-      <p className="text-sm font-medium text-blue-900">{question}</p>
-      <textarea
-        name="reflection"
-        rows={3}
-        placeholder="思いつくまま自由に書いてください。書かなくてもOKですが、書くほどあなたに合った分析の精度が上がります。"
-        className="w-full rounded border border-blue-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-      />
-      <SubmitButton />
+      <QuestionFormContent question={question} answered={optimisticAnswered} />
     </form>
-  );
-}
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="rounded bg-blue-600 text-white px-4 py-1.5 text-xs font-medium hover:bg-blue-700 disabled:opacity-50"
-    >
-      {pending ? "保存中..." : "記録する"}
-    </button>
   );
 }
 
