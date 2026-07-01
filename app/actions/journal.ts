@@ -60,12 +60,13 @@ export async function saveActionReflection(formData: FormData) {
 
   const actionPoint = (formData.get("actionPoint") as string)?.trim();
   const question = (formData.get("question") as string)?.trim();
-  const reflection = (formData.get("reflection") as string)?.trim();
-  if (!reflection) return;
+  const reflection = (formData.get("reflection") as string)?.trim() || null;
 
   const what = question
     ? `【週次の問い】${question}`
     : `【今週やってみること】${actionPoint}`;
+
+  if (!what) return;
 
   await prisma.entry.create({
     data: {
@@ -75,7 +76,6 @@ export async function saveActionReflection(formData: FormData) {
       whyFeeling: reflection,
     },
   });
-  // 再分析は走らせない。ページだけ更新してDBの回答済み状態を反映する
   revalidatePath("/analysis");
 }
 
