@@ -81,6 +81,12 @@ export function buildProfileContext(profile: UserProfileForAnalysis): string {
     if (profile.supplementQ3) lines.push(`- 他人が苦痛なことを自分だけ楽しいと感じること: ${profile.supplementQ3}`);
   }
 
+  if (profile.personalityWords && profile.personalityWords.length > 0) {
+    lines.push("\n【自分らしいと思う言葉（選択済み）】");
+    lines.push(profile.personalityWords.join("、"));
+    lines.push("※ この言葉の選択をもとに適性ランキングを生成してください。");
+  }
+
   return lines.join("\n");
 }
 
@@ -157,7 +163,8 @@ ${entriesText}
     "stressPatterns": [{ "point": "string", "reason": "string", "insight": "string" }],     // ストレスが増えているパターン（時系列で増加傾向があるもの。なければ空配列）
     "bestDayTraits": [{ "point": "string", "reason": "string", "insight": "string" }]       // 一番充実していた・ワクワクした記録の共通点
   },
-  "nextActions": [{ "point": "string", "reason": "string", "insight": "string" }]           // 次の1週間で試すとよい具体的な行動（pointは行動そのもの、reasonは記録のどんな傾向から来ているか、insightは試すことで何が分かりそうか）
+  "nextActions": [{ "point": "string", "reason": "string", "insight": "string" }],          // 次の1週間で試すとよい具体的な行動（pointは行動そのもの、reasonは記録のどんな傾向から来ているか、insightは試すことで何が分かりそうか）
+  "aptitudeRanking": [{ "rank": 1, "type": "string", "reason": "string" }]                  // 適性ランキング上位3つ。言葉の選択がない場合は空配列。タイプは以下から選ぶ: 経営者タイプ、リーダータイプ、起業家タイプ、クリエイタータイプ、研究者タイプ、教育者タイプ、コミュニケータータイプ、サポータータイプ、プロジェクトマネージャータイプ。選んだ言葉だけを根拠にし、推測しない。
 }`;
 }
 

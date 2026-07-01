@@ -65,6 +65,7 @@ export interface AnalysisContent {
     bestDayTraits: AnalysisItem[];  // 一番充実していた日の共通点
   };
   nextActions: AnalysisItem[]; // 次の1週間で試すとよい具体的な行動
+  aptitudeRanking?: { rank: number; type: string; reason: string }[]; // 適性ランキング（言葉の選択がある場合のみ）
 }
 
 export interface PassionItem {
@@ -86,6 +87,7 @@ export interface UserProfileForAnalysis {
   supplementQ1?: string | null;
   supplementQ2?: string | null;
   supplementQ3?: string | null;
+  personalityWords?: string[] | null;
 }
 
 export interface AIProvider {

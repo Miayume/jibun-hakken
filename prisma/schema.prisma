@@ -35,11 +35,12 @@ model Profile {
   jobType        String?
   employmentType String?
   workStyle      String?
-  passions       String? // JSON: [{item,why1,why2,why3}]
-  supplementQ1   String? // 今の仕事で同じ興奮を感じた瞬間
-  supplementQ2   String? // お金をもらわなくてもやり続けられること
-  supplementQ3   String? // 他人が苦痛なことを自分だけ楽しいと感じること
-  updatedAt      DateTime @updatedAt
+  passions         String? // JSON: [{item,why1,why2,why3}]
+  supplementQ1     String? // 今の仕事で同じ興奮を感じた瞬間
+  supplementQ2     String? // お金をもらわなくてもやり続けられること
+  supplementQ3     String? // 他人が苦痛なことを自分だけ楽しいと感じること
+  personalityWords String? // JSON: string[] 選んだ言葉
+  updatedAt        DateTime @updatedAt
 }
 
 model Entry {

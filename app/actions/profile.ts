@@ -28,6 +28,7 @@ export async function saveProfile(formData: FormData) {
       supplementQ1: emptyToNull(formData.get("supplementQ1")),
       supplementQ2: emptyToNull(formData.get("supplementQ2")),
       supplementQ3: emptyToNull(formData.get("supplementQ3")),
+      personalityWords: emptyToNull(formData.get("personalityWords")),
     },
     update: {
       ageRange: emptyToNull(formData.get("ageRange")),
@@ -41,6 +42,7 @@ export async function saveProfile(formData: FormData) {
       supplementQ1: emptyToNull(formData.get("supplementQ1")),
       supplementQ2: emptyToNull(formData.get("supplementQ2")),
       supplementQ3: emptyToNull(formData.get("supplementQ3")),
+      personalityWords: emptyToNull(formData.get("personalityWords")),
     },
   });
 

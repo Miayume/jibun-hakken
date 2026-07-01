@@ -51,6 +51,9 @@ export async function runAnalysisForUser(userId: string): Promise<void> {
           passions: profileRow.passions
             ? (JSON.parse(profileRow.passions) as PassionItem[])
             : null,
+          personalityWords: profileRow.personalityWords
+            ? (JSON.parse(profileRow.personalityWords) as string[])
+            : null,
         }
       : null;
 

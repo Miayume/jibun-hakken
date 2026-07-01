@@ -147,6 +147,25 @@ export default async function AnalysisPage({
             <p>{content.summary}</p>
           </div>
 
+          {content.aptitudeRanking && content.aptitudeRanking.length > 0 && (
+            <div className="rounded border border-purple-200 bg-purple-50 p-4">
+              <h2 className="text-sm font-bold text-purple-800 mb-3">適性ランキング</h2>
+              <div className="space-y-3">
+                {content.aptitudeRanking.map((item) => (
+                  <div key={item.rank} className="flex gap-3">
+                    <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-purple-200 text-purple-800 text-xs flex items-center justify-center font-bold">
+                      {item.rank}
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-purple-900">{item.type}</p>
+                      <p className="text-xs text-purple-600 mt-0.5">{item.reason}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {content.nextActions && content.nextActions.length > 0 && (
             <div className="rounded border border-blue-200 bg-blue-50 p-4">
               <h2 className="text-sm font-bold text-blue-800 mb-3">今週やってみること</h2>
