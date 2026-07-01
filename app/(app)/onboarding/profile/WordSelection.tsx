@@ -9,8 +9,8 @@ const WORDS = [
   "伝える", "つなぐ", "守る", "応援する", "調整する",
 ];
 
-export default function WordSelection() {
-  const [selected, setSelected] = useState<string[]>([]);
+export default function WordSelection({ initialWords }: { initialWords?: string[] | null }) {
+  const [selected, setSelected] = useState<string[]>(initialWords ?? []);
 
   function toggle(word: string) {
     setSelected((prev) =>

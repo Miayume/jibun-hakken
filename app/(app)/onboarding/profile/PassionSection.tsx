@@ -113,8 +113,10 @@ function PassionCard({
   );
 }
 
-export default function PassionSection() {
-  const [passions, setPassions] = useState<PassionItem[]>([empty()]);
+export default function PassionSection({ initialPassions }: { initialPassions?: PassionItem[] | null }) {
+  const [passions, setPassions] = useState<PassionItem[]>(
+    initialPassions && initialPassions.length > 0 ? initialPassions : [empty()]
+  );
 
   function update(index: number, field: keyof PassionItem, value: string) {
     setPassions((prev) =>

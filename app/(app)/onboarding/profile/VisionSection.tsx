@@ -13,8 +13,10 @@ const QUESTIONS = [
   "その空間には何が置いてありますか？",
 ];
 
-export default function VisionSection() {
-  const [answers, setAnswers] = useState<string[]>(Array(8).fill(""));
+export default function VisionSection({ initialAnswers }: { initialAnswers?: Record<string, string> | null }) {
+  const [answers, setAnswers] = useState<string[]>(
+    Array(8).fill("").map((_, i) => initialAnswers?.[`q${i + 1}`] ?? "")
+  );
 
   function update(index: number, value: string) {
     setAnswers((prev) => prev.map((a, i) => (i === index ? value : a)));
