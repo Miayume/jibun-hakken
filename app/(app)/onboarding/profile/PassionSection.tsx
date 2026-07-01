@@ -32,10 +32,7 @@ export default function PassionSection() {
         <p className="text-sm text-gray-700 leading-relaxed mb-4 p-4 bg-amber-50 rounded border border-amber-100">
           好きだと思えるのは、あなたの中にもその感性があるから好きになれるんです。何が自分の好きなのかが分かると、自分らしさの形が見えてきて、自分の才能が見えてくるんです。
         </p>
-        <h2 className="font-medium mb-1">8. 時間を忘れて没頭したもの</h2>
-        <p className="text-xs text-gray-500 mb-3">
-          今でも昔でも構いません。好きなキャラクター、集めていたもの、繰り返しやっていたこと、何でも。
-        </p>
+        <h2 className="font-medium mb-3">8. 時間を忘れて没頭したもの</h2>
 
         <div className="space-y-5">
           {passions.map((p, i) => (
@@ -44,7 +41,7 @@ export default function PassionSection() {
                 {i + 1}つ目{i === 0 ? "（必須）" : "（任意）"}
               </p>
               <div>
-                <label className="block text-sm mb-1">没頭したこと</label>
+                <label className="block text-sm mb-1">今まで時間を忘れて没頭したものは何ですか？</label>
                 <input
                   type="text"
                   value={p.item}
@@ -54,7 +51,7 @@ export default function PassionSection() {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1">なぜそれに没頭しましたか？</label>
+                <label className="block text-sm mb-1">それは、なぜ好きだったと思いますか？</label>
                 <input
                   type="text"
                   value={p.why1}
@@ -63,7 +60,7 @@ export default function PassionSection() {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1">そのどこが好きでしたか？</label>
+                <label className="block text-sm mb-1">2で答えた内容は、なぜ好きだったと思いますか？</label>
                 <input
                   type="text"
                   value={p.why2}
@@ -72,15 +69,12 @@ export default function PassionSection() {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1">
-                  さらに深く考えると、何に惹かれていたと思いますか？
-                </label>
+                <label className="block text-sm mb-1">3で答えた内容は、なぜ好きだったと思いますか？</label>
                 <input
                   type="text"
                   value={p.why3}
                   onChange={(e) => update(i, "why3", e.target.value)}
                   className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
-                  placeholder="例：誰も答えを知らない謎に触れる感覚"
                 />
               </div>
             </div>
