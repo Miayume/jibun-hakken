@@ -79,6 +79,12 @@ export default function ProfilePage() {
         >
           保存してジャーナルへ進む
         </button>
+
+        <p className="text-xs text-gray-400 text-center">
+          保存することで
+          <a href="/privacy" target="_blank" className="underline hover:text-gray-600">プライバシーポリシー</a>
+          に同意したものとみなします。
+        </p>
       </form>
     </main>
   );
