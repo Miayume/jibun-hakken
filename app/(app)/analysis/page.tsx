@@ -5,6 +5,7 @@ import type { AnalysisContent, AnalysisItem, AnalysisScope } from "@/lib/ai/type
 import { format as formatTz } from "date-fns-tz";
 import { JST_TZ } from "@/lib/datetime";
 import Link from "next/link";
+import { refreshAnalysis } from "@/app/actions/analysis";
 
 const SCOPE_LABELS: Record<AnalysisScope, string> = {
   recent30: "最近30件",
@@ -115,18 +116,28 @@ export default async function AnalysisPage({
     <main className="mx-auto max-w-2xl px-6 py-8">
       <h1 className="text-xl font-bold mb-4">分析結果</h1>
 
-      <div className="flex gap-2 mb-6">
-        {(["recent30", "recent100", "all"] as AnalysisScope[]).map((s) => (
-          <Link
-            key={s}
-            href={`/analysis?scope=${s}`}
-            className={`rounded px-3 py-1.5 text-sm border ${
-              scope === s ? "bg-black text-white border-black" : "border-gray-300"
-            }`}
+      <div className="flex gap-2 mb-6 flex-wrap items-center justify-between">
+        <div className="flex gap-2">
+          {(["recent30", "recent100", "all"] as AnalysisScope[]).map((s) => (
+            <Link
+              key={s}
+              href={`/analysis?scope=${s}`}
+              className={`rounded px-3 py-1.5 text-sm border ${
+                scope === s ? "bg-black text-white border-black" : "border-gray-300"
+              }`}
+            >
+              {SCOPE_LABELS[s]}
+            </Link>
+          ))}
+        </div>
+        <form action={refreshAnalysis}>
+          <button
+            type="submit"
+            className="text-xs text-gray-500 border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-50"
           >
-            {SCOPE_LABELS[s]}
-          </Link>
-        ))}
+            分析を更新する
+          </button>
+        </form>
       </div>
 
       {!content && (

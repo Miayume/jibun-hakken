@@ -43,12 +43,14 @@ export async function addEntry(formData: FormData) {
     data: { userId, type, what, doingWhat, withWho, whoPerson, whoGoodPoint, whereWas, whyFeeling, whyStress, mostImpressive, futureUseful, futureImprove },
   });
 
-  // レスポンス（リダイレクト）を先に返してから分析をバックグラウンドで実行
-  after(() => runAnalysisForUser(userId));
+  // 分析完了後にキャッシュ更新（完了前に更新すると古い結果が表示される）
+  after(async () => {
+    await runAnalysisForUser(userId);
+    revalidatePath("/analysis");
+  });
 
   revalidatePath("/journal/new");
   revalidatePath("/journal/calendar");
-  revalidatePath("/analysis");
   redirect(`/journal/new?saved=1&type=${nextType}`);
 }
 

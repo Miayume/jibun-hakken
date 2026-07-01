@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
@@ -87,7 +88,10 @@ export async function saveProfile(formData: FormData) {
     },
   });
 
-  after(() => runAnalysisForUser(userId));
+  after(async () => {
+    await runAnalysisForUser(userId);
+    revalidatePath("/analysis");
+  });
 
   redirect("/journal/new");
 }
