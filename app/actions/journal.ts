@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { after } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
@@ -61,6 +62,8 @@ export async function saveActionReflection(formData: FormData) {
   const actionPoint = (formData.get("actionPoint") as string)?.trim();
   const question = (formData.get("question") as string)?.trim();
   const reflection = (formData.get("reflection") as string)?.trim() || null;
+  const analysisId = (formData.get("analysisId") as string)?.trim();
+  const questionIndex = parseInt((formData.get("questionIndex") as string) ?? "", 10);
 
   const what = question
     ? `【週次の問い】${question}`
@@ -69,13 +72,20 @@ export async function saveActionReflection(formData: FormData) {
   if (!what) return;
 
   await prisma.entry.create({
-    data: {
-      userId,
-      type: "wakuwaku",
-      what,
-      whyFeeling: reflection,
-    },
+    data: { userId, type: "wakuwaku", what, whyFeeling: reflection },
   });
+
+  // cookieに回答済みフラグを保存（analysisId + indexベースなのでテキスト変更の影響なし）
+  if (analysisId && !isNaN(questionIndex) && questionIndex >= 0) {
+    const cookieStore = await cookies();
+    cookieStore.set(`jh_ans_${analysisId}_${questionIndex}`, "1", {
+      maxAge: 60 * 60 * 24 * 90,
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+    });
+  }
+
   revalidatePath("/analysis");
 }
 

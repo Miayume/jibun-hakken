@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { getCurrentUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { entryCountThresholds } from "@/lib/analysis/trigger";
@@ -114,17 +115,15 @@ export default async function AnalysisPage({
 
   const content = latest ? (JSON.parse(latest.content) as AnalysisContent) : null;
 
-  // DB上の回答済みエントリーをチェック（localStorage依存をなくすため）
-  const answeredWhats: string[] = [];
-  if (content?.nextActions?.length && userId) {
-    const whats = content.nextActions.map((item) =>
-      item.question ? `【週次の問い】${item.question}` : `【今週やってみること】${item.point}`
-    );
-    const answeredEntries = await prisma.entry.findMany({
-      where: { userId, type: "wakuwaku", what: { in: whats } },
-      select: { what: true },
+  // cookieから回答済みインデックスを取得（analysisId + indexベース）
+  const answeredIndexes: number[] = [];
+  if (latest && content?.nextActions?.length) {
+    const cookieStore = await cookies();
+    content.nextActions.forEach((_, i) => {
+      if (cookieStore.get(`jh_ans_${latest.id}_${i}`)?.value === "1") {
+        answeredIndexes.push(i);
+      }
     });
-    answeredEntries.forEach((e) => { if (e.what) answeredWhats.push(e.what); });
   }
 
   return (
@@ -190,7 +189,11 @@ export default async function AnalysisPage({
           )}
 
           {content.nextActions && content.nextActions.length > 0 && (
-            <NextActionsSection items={content.nextActions} answeredWhats={answeredWhats} />
+            <NextActionsSection
+              items={content.nextActions}
+              answeredIndexes={answeredIndexes}
+              analysisId={latest!.id}
+            />
           )}
 
           <div className="divide-y divide-gray-200 border border-gray-200 rounded">

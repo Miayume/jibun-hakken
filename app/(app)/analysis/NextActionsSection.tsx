@@ -5,32 +5,27 @@ import { useFormStatus } from "react-dom";
 import { saveActionReflection } from "@/app/actions/journal";
 import type { AnalysisItem } from "@/lib/ai/types";
 
-function storageKey(actionPoint: string) {
-  return `jh_answered_${actionPoint.slice(0, 40)}`;
-}
-
-function whatKey(actionPoint: string, question: string) {
-  return question ? `【週次の問い】${question}` : `【今週やってみること】${actionPoint}`;
-}
-
 function QuestionForm({
   actionPoint,
   question,
   preAnswered,
+  analysisId,
+  questionIndex,
 }: {
   actionPoint: string;
   question: string;
   preAnswered: boolean;
+  analysisId: string;
+  questionIndex: number;
 }) {
-  const key = storageKey(actionPoint);
   const [answered, setAnswered] = useState(preAnswered);
 
+  // preAnsweredがtrueになったら（サーバー側から回答済みと判明）即反映
   useEffect(() => {
-    if (!answered && localStorage.getItem(key) === "1") setAnswered(true);
-  }, [key, answered]);
+    if (preAnswered) setAnswered(true);
+  }, [preAnswered]);
 
   async function handleSubmit(formData: FormData) {
-    localStorage.setItem(key, "1");
     setAnswered(true);
     await saveActionReflection(formData);
   }
@@ -43,6 +38,8 @@ function QuestionForm({
     <form action={handleSubmit} className="mt-3 space-y-2">
       <input type="hidden" name="actionPoint" value={actionPoint} />
       <input type="hidden" name="question" value={question} />
+      <input type="hidden" name="analysisId" value={analysisId} />
+      <input type="hidden" name="questionIndex" value={questionIndex} />
       <p className="text-sm font-medium text-blue-900">{question}</p>
       <textarea
         name="reflection"
@@ -70,12 +67,14 @@ function SubmitButton() {
 
 export default function NextActionsSection({
   items,
-  answeredWhats = [],
+  answeredIndexes = [],
+  analysisId,
 }: {
   items: AnalysisItem[];
-  answeredWhats?: string[];
+  answeredIndexes?: number[];
+  analysisId: string;
 }) {
-  const answeredSet = new Set(answeredWhats);
+  const answeredSet = new Set(answeredIndexes);
   return (
     <div className="rounded border border-blue-200 bg-blue-50 p-4">
       <h2 className="text-sm font-bold text-blue-800 mb-3">今週やってみること</h2>
@@ -93,7 +92,9 @@ export default function NextActionsSection({
                 <QuestionForm
                   actionPoint={item.point}
                   question={item.question}
-                  preAnswered={answeredSet.has(whatKey(item.point, item.question))}
+                  preAnswered={answeredSet.has(i)}
+                  analysisId={analysisId}
+                  questionIndex={i}
                 />
               )}
             </div>
