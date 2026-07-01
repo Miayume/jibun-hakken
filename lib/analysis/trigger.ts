@@ -5,6 +5,8 @@ import type {
   AnalysisScope,
   AnalysisTier,
   JournalEntryForAnalysis,
+  PassionItem,
+  UserProfileForAnalysis,
 } from "@/lib/ai/types";
 
 function tierForCount(count: number): AnalysisTier | null {
@@ -41,6 +43,17 @@ export async function runAnalysisForUser(userId: string): Promise<void> {
     const provider = getAIProvider();
     const scopes: AnalysisScope[] = ["recent30", "recent100", "all"];
 
+    // プロフィール情報を取得してAIに渡す
+    const profileRow = await prisma.profile.findUnique({ where: { userId } });
+    const profile: UserProfileForAnalysis | null = profileRow
+      ? {
+          ...profileRow,
+          passions: profileRow.passions
+            ? (JSON.parse(profileRow.passions) as PassionItem[])
+            : null,
+        }
+      : null;
+
     // 同じ件数(=同じ記録セット)のスコープはAPI呼び出しを1回にまとめる
     const sliceLengthByScope = new Map(scopes.map((s) => [s, sliceForScope(entries, s).length]));
     const uniqueLengths = [...new Set(sliceLengthByScope.values())];
@@ -49,7 +62,7 @@ export async function runAnalysisForUser(userId: string): Promise<void> {
       await Promise.all(
         uniqueLengths.map(async (length) => {
           const scopedEntries = entries.slice(entries.length - length);
-          const content = await provider.analyze({ entries: scopedEntries, tier, scope: "all" });
+          const content = await provider.analyze({ entries: scopedEntries, tier, scope: "all", profile });
           return [length, content] as const;
         })
       )

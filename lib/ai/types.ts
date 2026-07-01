@@ -67,10 +67,32 @@ export interface AnalysisContent {
   nextActions: AnalysisItem[]; // 次の1週間で試すとよい具体的な行動
 }
 
+export interface PassionItem {
+  item: string;
+  why1: string;
+  why2: string;
+  why3: string;
+}
+
+export interface UserProfileForAnalysis {
+  ageRange?: string | null;
+  gender?: string | null;
+  prefecture?: string | null;
+  industry?: string | null;
+  jobType?: string | null;
+  employmentType?: string | null;
+  workStyle?: string | null;
+  passions?: PassionItem[] | null;
+  supplementQ1?: string | null;
+  supplementQ2?: string | null;
+  supplementQ3?: string | null;
+}
+
 export interface AIProvider {
   analyze(params: {
     entries: JournalEntryForAnalysis[];
     tier: AnalysisTier;
     scope: AnalysisScope;
+    profile?: UserProfileForAnalysis | null;
   }): Promise<AnalysisContent>;
 }

@@ -1,5 +1,6 @@
 import { getCurrentUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { redirect } from "next/navigation";
 import JournalForm from "@/app/(app)/journal/new/JournalForm";
 import { entryCountThresholds } from "@/lib/analysis/trigger";
 
@@ -9,6 +10,13 @@ export default async function NewEntryPage({
   searchParams: Promise<{ saved?: string; duplicate?: string; type?: string }>;
 }) {
   const userId = await getCurrentUserId();
+
+  // プロフィール未完了ならオンボーディングへ
+  if (userId) {
+    const profile = await prisma.profile.findUnique({ where: { userId } });
+    if (!profile) redirect("/onboarding/profile");
+  }
+
   const { saved, duplicate, type } = await searchParams;
   const entryCount = userId
     ? await prisma.entry.count({ where: { userId } })

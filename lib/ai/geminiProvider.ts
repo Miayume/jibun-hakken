@@ -1,13 +1,15 @@
-import type { AIProvider, AnalysisContent, AnalysisTier, JournalEntryForAnalysis } from "@/lib/ai/types";
+import type { AIProvider, AnalysisContent, AnalysisTier, JournalEntryForAnalysis, UserProfileForAnalysis } from "@/lib/ai/types";
 import { SYSTEM_PROMPT, buildUserPrompt, parseAnalysisJson } from "@/lib/ai/prompts";
 
 export class GeminiAIProvider implements AIProvider {
   async analyze({
     entries,
     tier,
+    profile,
   }: {
     entries: JournalEntryForAnalysis[];
     tier: AnalysisTier;
+    profile?: UserProfileForAnalysis | null;
   }): Promise<AnalysisContent> {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
@@ -26,7 +28,7 @@ export class GeminiAIProvider implements AIProvider {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [{ role: "user", parts: [{ text: buildUserPrompt(entries, tier) }] }],
+          contents: [{ role: "user", parts: [{ text: buildUserPrompt(entries, tier, profile) }] }],
           generationConfig: { responseMimeType: "application/json" },
         }),
       }

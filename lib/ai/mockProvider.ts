@@ -4,6 +4,7 @@ import type {
   AnalysisItem,
   AnalysisTier,
   JournalEntryForAnalysis,
+  UserProfileForAnalysis,
 } from "@/lib/ai/types";
 
 /**
@@ -18,6 +19,7 @@ export class MockAIProvider implements AIProvider {
   }: {
     entries: JournalEntryForAnalysis[];
     tier: AnalysisTier;
+    profile?: UserProfileForAnalysis | null;
   }): Promise<AnalysisContent> {
     const wakuwaku = entries.filter((e) => e.type === "wakuwaku");
     const stress = entries.filter((e) => e.type === "stress");

@@ -24,6 +24,10 @@ export async function saveProfile(formData: FormData) {
       jobType: emptyToNull(formData.get("jobType")),
       employmentType: emptyToNull(formData.get("employmentType")),
       workStyle: emptyToNull(formData.get("workStyle")),
+      passions: emptyToNull(formData.get("passions")),
+      supplementQ1: emptyToNull(formData.get("supplementQ1")),
+      supplementQ2: emptyToNull(formData.get("supplementQ2")),
+      supplementQ3: emptyToNull(formData.get("supplementQ3")),
     },
     update: {
       ageRange: emptyToNull(formData.get("ageRange")),
@@ -33,12 +37,12 @@ export async function saveProfile(formData: FormData) {
       jobType: emptyToNull(formData.get("jobType")),
       employmentType: emptyToNull(formData.get("employmentType")),
       workStyle: emptyToNull(formData.get("workStyle")),
+      passions: emptyToNull(formData.get("passions")),
+      supplementQ1: emptyToNull(formData.get("supplementQ1")),
+      supplementQ2: emptyToNull(formData.get("supplementQ2")),
+      supplementQ3: emptyToNull(formData.get("supplementQ3")),
     },
   });
 
-  redirect("/journal/new");
-}
-
-export async function skipProfile() {
   redirect("/journal/new");
 }

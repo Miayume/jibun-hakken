@@ -1,4 +1,4 @@
-import { saveProfile, skipProfile } from "@/app/actions/profile";
+import { saveProfile } from "@/app/actions/profile";
 import {
   AGE_RANGES,
   GENDERS,
@@ -8,6 +8,7 @@ import {
   EMPLOYMENT_TYPES,
   WORK_STYLES,
 } from "@/lib/constants/profileOptions";
+import PassionSection from "./PassionSection";
 
 function RadioGroup({ name, options }: { name: string; options: string[] }) {
   return (
@@ -28,9 +29,9 @@ function RadioGroup({ name, options }: { name: string; options: string[] }) {
 export default function ProfilePage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <h1 className="text-xl font-bold mb-2">プロフィール（初回のみ・任意）</h1>
+      <h1 className="text-xl font-bold mb-2">はじめに教えてください</h1>
       <p className="text-sm text-gray-600 mb-6">
-        以下はすべて任意です。回答いただいた内容は、より正確に分析するための情報として利用するほか、個人を特定できない形で集計し、サービス改善や統計分析にも利用します。
+        回答いただいた内容は、AIがより正確に分析するための情報として利用するほか、個人を特定できない形で集計し、サービス改善や統計分析にも利用します。
       </p>
 
       <form action={saveProfile} className="space-y-6">
@@ -44,12 +45,10 @@ export default function ProfilePage() {
         </div>
         <div>
           <h2 className="font-medium mb-2">3. 都道府県</h2>
-          <select name="prefecture" className="rounded border border-gray-300 px-3 py-2">
+          <select name="prefecture" className="rounded border border-gray-300 px-3 py-2 text-sm">
             <option value="">選択しない</option>
             {PREFECTURES.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
+              <option key={p} value={p}>{p}</option>
             ))}
           </select>
         </div>
@@ -70,20 +69,16 @@ export default function ProfilePage() {
           <RadioGroup name="workStyle" options={WORK_STYLES} />
         </div>
 
-        <div className="flex gap-3 pt-2">
-          <button
-            type="submit"
-            className="rounded bg-black text-white px-6 py-2.5 font-medium hover:bg-gray-800"
-          >
-            保存して次へ
-          </button>
-          <button
-            formAction={skipProfile}
-            className="rounded border border-gray-300 px-6 py-2.5 font-medium hover:bg-gray-50"
-          >
-            スキップ
-          </button>
-        </div>
+        <hr className="border-gray-200" />
+
+        <PassionSection />
+
+        <button
+          type="submit"
+          className="w-full rounded bg-black text-white py-3 font-medium hover:bg-gray-800"
+        >
+          保存してジャーナルへ進む
+        </button>
       </form>
     </main>
   );
