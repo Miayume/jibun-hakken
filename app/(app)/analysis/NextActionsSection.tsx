@@ -6,58 +6,37 @@ import { saveActionReflection } from "@/app/actions/journal";
 import type { AnalysisItem } from "@/lib/ai/types";
 
 function QuestionForm({ actionPoint, question }: { actionPoint: string; question: string }) {
-  const [open, setOpen] = useState(false);
   const [saved, setSaved] = useState(false);
 
   async function handleSubmit(formData: FormData) {
     await saveActionReflection(formData);
     setSaved(true);
-    setOpen(false);
   }
 
   if (saved) {
     return (
-      <p className="mt-2 text-xs text-green-700 bg-green-50 border border-green-200 rounded px-3 py-1.5">
-        ✓ 回答をジャーナルに記録しました
-      </p>
+      <div className="mt-3 space-y-1">
+        <p className="text-sm font-medium text-blue-900">{question}</p>
+        <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded px-3 py-1.5">
+          ✓ 回答をジャーナルに記録しました
+        </p>
+      </div>
     );
   }
 
   return (
-    <div className="mt-3">
-      {!open ? (
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="text-xs text-blue-500 hover:underline"
-        >
-          ＋ この質問に答えてみる（任意）
-        </button>
-      ) : (
-        <form action={handleSubmit} className="space-y-2">
-          <input type="hidden" name="actionPoint" value={actionPoint} />
-          <input type="hidden" name="question" value={question} />
-          <p className="text-sm font-medium text-blue-900">{question}</p>
-          <textarea
-            name="reflection"
-            rows={3}
-            placeholder="思いつくまま自由に書いてください"
-            className="w-full rounded border border-blue-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-            autoFocus
-          />
-          <div className="flex gap-2 items-center">
-            <SubmitButton />
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="text-xs text-gray-400 hover:text-gray-600"
-            >
-              キャンセル
-            </button>
-          </div>
-        </form>
-      )}
-    </div>
+    <form action={handleSubmit} className="mt-3 space-y-2">
+      <input type="hidden" name="actionPoint" value={actionPoint} />
+      <input type="hidden" name="question" value={question} />
+      <p className="text-sm font-medium text-blue-900">{question}</p>
+      <textarea
+        name="reflection"
+        rows={3}
+        placeholder="思いつくまま自由に書いてください。書かなくてもOKですが、書くほどあなたに合った分析の精度が上がります。"
+        className="w-full rounded border border-blue-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+      />
+      <SubmitButton />
+    </form>
   );
 }
 
