@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { runAnalysisForUser } from "@/lib/analysis/trigger";
@@ -42,7 +43,8 @@ export async function addEntry(formData: FormData) {
     data: { userId, type, what, doingWhat, withWho, whoPerson, whoGoodPoint, whereWas, whyFeeling, whyStress, mostImpressive, futureUseful, futureImprove },
   });
 
-  await runAnalysisForUser(userId);
+  // レスポンス（リダイレクト）を先に返してから分析をバックグラウンドで実行
+  after(() => runAnalysisForUser(userId));
 
   revalidatePath("/journal/new");
   revalidatePath("/journal/calendar");

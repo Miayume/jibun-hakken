@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { runAnalysisForUser } from "@/lib/analysis/trigger";
@@ -86,8 +87,7 @@ export async function saveProfile(formData: FormData) {
     },
   });
 
-  // プロフィール更新後に分析を再実行して新しい回答を反映させる
-  void runAnalysisForUser(userId);
+  after(() => runAnalysisForUser(userId));
 
   redirect("/journal/new");
 }
