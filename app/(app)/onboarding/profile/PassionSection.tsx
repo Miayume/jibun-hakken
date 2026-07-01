@@ -11,6 +11,110 @@ interface PassionItem {
 
 const empty = (): PassionItem => ({ item: "", why1: "", why2: "", why3: "" });
 
+function PassionCard({
+  index,
+  passion,
+  onChange,
+}: {
+  index: number;
+  passion: PassionItem;
+  onChange: (field: keyof PassionItem, value: string) => void;
+}) {
+  const [q3Label, setQ3Label] = useState("2で答えた内容は、なぜ好きだったと思いますか？");
+  const [q4Label, setQ4Label] = useState("3で答えた内容は、なぜ好きだったと思いますか？");
+  const [q3Loading, setQ3Loading] = useState(false);
+  const [q4Loading, setQ4Loading] = useState(false);
+
+  async function generateQ3() {
+    if (!passion.why1.trim()) return;
+    setQ3Loading(true);
+    try {
+      const res = await fetch("/api/passion-question", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ answer: passion.why1 }),
+      });
+      const { question } = await res.json();
+      if (question) setQ3Label(question);
+    } finally {
+      setQ3Loading(false);
+    }
+  }
+
+  async function generateQ4() {
+    if (!passion.why2.trim()) return;
+    setQ4Loading(true);
+    try {
+      const res = await fetch("/api/passion-question", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ answer: passion.why2 }),
+      });
+      const { question } = await res.json();
+      if (question) setQ4Label(question);
+    } finally {
+      setQ4Loading(false);
+    }
+  }
+
+  return (
+    <div className="rounded border border-gray-200 p-4 space-y-3">
+      <p className="text-sm font-medium text-gray-700">
+        {index + 1}つ目{index === 0 ? "（必須）" : "（任意）"}
+      </p>
+
+      <div>
+        <label className="block text-sm mb-1">今まで時間を忘れて没頭したものは何ですか？</label>
+        <input
+          type="text"
+          value={passion.item}
+          onChange={(e) => onChange("item", e.target.value)}
+          className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+          placeholder="例：恐竜の図鑑、ゲーム、料理"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm mb-1">なぜ、それに魅力を感じていたと思いますか？</label>
+        <input
+          type="text"
+          value={passion.why1}
+          onChange={(e) => onChange("why1", e.target.value)}
+          onBlur={generateQ3}
+          className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm mb-1">
+          {q3Loading ? "質問を生成中..." : q3Label}
+        </label>
+        <input
+          type="text"
+          value={passion.why2}
+          onChange={(e) => onChange("why2", e.target.value)}
+          onBlur={generateQ4}
+          className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+          disabled={q3Loading}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm mb-1">
+          {q4Loading ? "質問を生成中..." : q4Label}
+        </label>
+        <input
+          type="text"
+          value={passion.why3}
+          onChange={(e) => onChange("why3", e.target.value)}
+          className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+          disabled={q4Loading}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function PassionSection() {
   const [passions, setPassions] = useState<PassionItem[]>([empty()]);
 
@@ -22,11 +126,7 @@ export default function PassionSection() {
 
   return (
     <div className="space-y-6">
-      <input
-        type="hidden"
-        name="passions"
-        value={JSON.stringify(passions)}
-      />
+      <input type="hidden" name="passions" value={JSON.stringify(passions)} />
 
       <div>
         <p className="text-sm text-gray-700 leading-relaxed mb-4 p-4 bg-amber-50 rounded border border-amber-100">
@@ -36,48 +136,12 @@ export default function PassionSection() {
 
         <div className="space-y-5">
           {passions.map((p, i) => (
-            <div key={i} className="rounded border border-gray-200 p-4 space-y-3">
-              <p className="text-sm font-medium text-gray-700">
-                {i + 1}つ目{i === 0 ? "（必須）" : "（任意）"}
-              </p>
-              <div>
-                <label className="block text-sm mb-1">今まで時間を忘れて没頭したものは何ですか？</label>
-                <input
-                  type="text"
-                  value={p.item}
-                  onChange={(e) => update(i, "item", e.target.value)}
-                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
-                  placeholder="例：恐竜の図鑑、ゲーム、料理"
-                />
-              </div>
-              <div>
-                <label className="block text-sm mb-1">それは、なぜ好きだったと思いますか？</label>
-                <input
-                  type="text"
-                  value={p.why1}
-                  onChange={(e) => update(i, "why1", e.target.value)}
-                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-sm mb-1">2で答えた内容は、なぜ好きだったと思いますか？</label>
-                <input
-                  type="text"
-                  value={p.why2}
-                  onChange={(e) => update(i, "why2", e.target.value)}
-                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-sm mb-1">3で答えた内容は、なぜ好きだったと思いますか？</label>
-                <input
-                  type="text"
-                  value={p.why3}
-                  onChange={(e) => update(i, "why3", e.target.value)}
-                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
-                />
-              </div>
-            </div>
+            <PassionCard
+              key={i}
+              index={i}
+              passion={p}
+              onChange={(field, value) => update(i, field, value)}
+            />
           ))}
         </div>
 
@@ -91,7 +155,6 @@ export default function PassionSection() {
           </button>
         )}
       </div>
-
     </div>
   );
 }
