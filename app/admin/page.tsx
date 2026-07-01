@@ -1,8 +1,14 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { getCurrentUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-const ADMIN_USER_ID = process.env.ADMIN_USER_ID ?? "01a7022d-b899-4083-829d-52f344aa3e7e";
+async function checkAdminAuth() {
+  const adminToken = process.env.ADMIN_TOKEN;
+  if (!adminToken) redirect("/admin/login");
+  const cookieStore = await cookies();
+  const session = cookieStore.get("admin_session")?.value;
+  if (session !== adminToken) redirect("/admin/login");
+}
 
 function Bar({ value, max }: { value: number; max: number }) {
   const pct = max === 0 ? 0 : Math.round((value / max) * 100);
@@ -44,8 +50,7 @@ function tally(arr: (string | null)[]): Map<string, number> {
 }
 
 export default async function AdminPage() {
-  const userId = await getCurrentUserId();
-  if (userId !== ADMIN_USER_ID) redirect("/");
+  await checkAdminAuth();
 
   const [users, profiles, entries] = await Promise.all([
     prisma.user.findMany({ select: { id: true, createdAt: true } }),
@@ -57,16 +62,13 @@ export default async function AdminPage() {
   const totalEntries = entries.length;
   const usersWithProfile = profiles.length;
 
-  // 今月の新規ユーザー
   const now = new Date();
   const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const newUsersThisMonth = users.filter((u) => u.createdAt >= thisMonthStart).length;
 
-  // ワクワク vs ストレス比
   const wakuwakuCount = entries.filter((e) => e.type === "wakuwaku").length;
   const stressCount = entries.filter((e) => e.type === "stress").length;
 
-  // プロフィール分布
   const ageMap = tally(profiles.map((p) => p.ageRange));
   const genderMap = tally(profiles.map((p) => p.gender));
   const industryMap = tally(profiles.map((p) => p.industry));
@@ -75,7 +77,6 @@ export default async function AdminPage() {
   const empMap = tally(profiles.map((p) => p.employmentType));
   const workStyleMap = tally(profiles.map((p) => p.workStyle));
 
-  // 没頭体験（passions）の集計
   const passionItems: string[] = [];
   for (const p of profiles) {
     if (!p.passions) continue;
@@ -99,7 +100,6 @@ export default async function AdminPage() {
         <p className="text-xs text-gray-400 mt-1">{dateStr} 時点のデータ</p>
       </div>
 
-      {/* サマリーカード */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
           { label: "全ユーザー数", value: totalUsers },
@@ -114,62 +114,53 @@ export default async function AdminPage() {
         ))}
       </div>
 
-      {/* 記録タイプ比率 */}
       <Section title="記録タイプ">
         <DistRow label="ワクワク・幸せ" value={wakuwakuCount} max={totalEntries} />
         <DistRow label="ストレス" value={stressCount} max={totalEntries} />
       </Section>
 
-      {/* 年代 */}
       <Section title="年代分布">
         {[...ageMap.entries()].map(([k, v]) => (
           <DistRow key={k} label={k} value={v} max={usersWithProfile} />
         ))}
       </Section>
 
-      {/* 性別 */}
       <Section title="性別分布">
         {[...genderMap.entries()].map(([k, v]) => (
           <DistRow key={k} label={k} value={v} max={usersWithProfile} />
         ))}
       </Section>
 
-      {/* 業界 */}
       <Section title="業界分布">
         {[...industryMap.entries()].map(([k, v]) => (
           <DistRow key={k} label={k} value={v} max={usersWithProfile} />
         ))}
       </Section>
 
-      {/* 職種 */}
       <Section title="職種分布">
         {[...jobMap.entries()].map(([k, v]) => (
           <DistRow key={k} label={k} value={v} max={usersWithProfile} />
         ))}
       </Section>
 
-      {/* 雇用形態 */}
       <Section title="雇用形態">
         {[...empMap.entries()].map(([k, v]) => (
           <DistRow key={k} label={k} value={v} max={usersWithProfile} />
         ))}
       </Section>
 
-      {/* 働き方 */}
       <Section title="働き方">
         {[...workStyleMap.entries()].map(([k, v]) => (
           <DistRow key={k} label={k} value={v} max={usersWithProfile} />
         ))}
       </Section>
 
-      {/* 都道府県（上位10件） */}
       <Section title="都道府県（上位10件）">
         {[...prefMap.entries()].slice(0, 10).map(([k, v]) => (
           <DistRow key={k} label={k} value={v} max={usersWithProfile} />
         ))}
       </Section>
 
-      {/* 没頭体験 */}
       <Section title={`没頭体験（${passionItems.length}件）`}>
         {passionItems.length === 0 ? (
           <p className="text-sm text-gray-400">データなし</p>
@@ -184,7 +175,7 @@ export default async function AdminPage() {
         )}
       </Section>
 
-      <p className="text-xs text-gray-300 text-center pb-6">このページはあなた（管理者）にのみ表示されます</p>
+      <p className="text-xs text-gray-300 text-center pb-6">このページは管理者にのみ表示されます</p>
     </main>
   );
 }
