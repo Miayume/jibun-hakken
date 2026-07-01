@@ -59,14 +59,19 @@ export async function saveActionReflection(formData: FormData) {
   if (!userId) return;
 
   const actionPoint = (formData.get("actionPoint") as string)?.trim();
+  const question = (formData.get("question") as string)?.trim();
   const reflection = (formData.get("reflection") as string)?.trim();
   if (!reflection) return;
+
+  const what = question
+    ? `【週次の問い】${question}`
+    : `【今週やってみること】${actionPoint}`;
 
   await prisma.entry.create({
     data: {
       userId,
       type: "wakuwaku",
-      what: `【今週やってみること】${actionPoint}`,
+      what,
       whyFeeling: reflection,
     },
   });

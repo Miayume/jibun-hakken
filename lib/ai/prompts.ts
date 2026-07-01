@@ -195,7 +195,12 @@ ${entriesText}
     "stressPatterns": [{ "point": "string", "reason": "string", "insight": "string" }],     // ストレスが増えているパターン（時系列で増加傾向があるもの。なければ空配列）
     "bestDayTraits": [{ "point": "string", "reason": "string", "insight": "string" }]       // 一番充実していた・ワクワクした記録の共通点
   },
-  "nextActions": [{ "point": "string", "reason": "string", "insight": "string" }],          // 次の1週間で試すとよい具体的な行動（pointは行動そのもの、reasonは記録のどんな傾向から来ているか、insightは試すことで何が分かりそうか）
+  "nextActions": [{ "point": "string", "reason": "string", "insight": "string", "question": "string" }],
+  // 次の1週間で試すとよい具体的な行動
+  // - point: 行動そのもの（例:「理想の人間関係の条件を書き出す」）
+  // - reason: 記録のどんな傾向からこの行動を提案しているか
+  // - insight: この行動を試すことで何が分かりそうか（「〜かもしれません」調）
+  // - question: insightの内容をユーザーへの直接的な問いかけに変換した疑問文。「〜ですか？」「〜はどんなものですか？」のような形にする。ユーザーが自分自身について深く考えるきっかけになる質問にする。（例：insight が「どんな人と関わりたいかを言語化することで...」なら question は「どんな人柄・価値観の人と関わりたいですか？」）
   "aptitudeRanking": [{ "rank": 1, "type": "string", "reason": "string", "insight": "string" }]
   // 適性ランキング上位3つ。言葉の選択がない場合は空配列。
   //

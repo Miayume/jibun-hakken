@@ -5,7 +5,7 @@ import { useFormStatus } from "react-dom";
 import { saveActionReflection } from "@/app/actions/journal";
 import type { AnalysisItem } from "@/lib/ai/types";
 
-function ReflectionForm({ actionPoint }: { actionPoint: string }) {
+function QuestionForm({ actionPoint, question }: { actionPoint: string; question: string }) {
   const [open, setOpen] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -18,28 +18,30 @@ function ReflectionForm({ actionPoint }: { actionPoint: string }) {
   if (saved) {
     return (
       <p className="mt-2 text-xs text-green-700 bg-green-50 border border-green-200 rounded px-3 py-1.5">
-        ✓ ジャーナルに記録しました
+        ✓ 回答をジャーナルに記録しました
       </p>
     );
   }
 
   return (
-    <div className="mt-2">
+    <div className="mt-3">
       {!open ? (
         <button
           type="button"
           onClick={() => setOpen(true)}
           className="text-xs text-blue-500 hover:underline"
         >
-          ＋ やってみた結果を書く（任意）
+          ＋ この質問に答えてみる（任意）
         </button>
       ) : (
         <form action={handleSubmit} className="space-y-2">
           <input type="hidden" name="actionPoint" value={actionPoint} />
+          <input type="hidden" name="question" value={question} />
+          <p className="text-sm font-medium text-blue-900">{question}</p>
           <textarea
             name="reflection"
-            rows={2}
-            placeholder="どうでしたか？気づいたことや感想を自由に書いてください"
+            rows={3}
+            placeholder="思いつくまま自由に書いてください"
             className="w-full rounded border border-blue-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
             autoFocus
           />
@@ -76,7 +78,7 @@ export default function NextActionsSection({ items }: { items: AnalysisItem[] })
   return (
     <div className="rounded border border-blue-200 bg-blue-50 p-4">
       <h2 className="text-sm font-bold text-blue-800 mb-3">今週やってみること</h2>
-      <div className="space-y-4">
+      <div className="space-y-5">
         {items.map((item, i) => (
           <div key={i} className="flex gap-3">
             <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-blue-200 text-blue-800 text-xs flex items-center justify-center font-bold">
@@ -86,7 +88,9 @@ export default function NextActionsSection({ items }: { items: AnalysisItem[] })
               <p className="text-sm font-semibold text-blue-900">{item.point}</p>
               <p className="text-xs text-blue-600 mt-0.5">{item.reason}</p>
               <p className="text-xs text-blue-500 italic mt-0.5">{item.insight}</p>
-              <ReflectionForm actionPoint={item.point} />
+              {item.question && (
+                <QuestionForm actionPoint={item.point} question={item.question} />
+              )}
             </div>
           </div>
         ))}

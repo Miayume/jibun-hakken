@@ -21,6 +21,7 @@ export interface AnalysisItem {
   point: string; // 短い結論（5〜15字程度のキーワード・フレーズ）
   reason: string; // 記録の具体的な内容に基づいた、なぜそう思ったかの一文
   insight: string; // そこから読み取れる、その人についての一段深い解釈（一文）
+  question?: string; // nextActionsのみ: insightをもとにユーザーへの問いかけ（疑問文）
 }
 
 export interface AnalysisContent {
