@@ -75,8 +75,8 @@ export async function saveActionReflection(formData: FormData) {
       whyFeeling: reflection,
     },
   });
-  // 再分析は走らせない（分析が変わると今週やってみることの文章が変わり、
-  // localStorageのキーと一致しなくなって回答済み表示がリセットされるため）
+  // 再分析は走らせない。ページだけ更新してDBの回答済み状態を反映する
+  revalidatePath("/analysis");
 }
 
 export async function deleteEntry(entryId: string) {

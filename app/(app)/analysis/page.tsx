@@ -114,6 +114,19 @@ export default async function AnalysisPage({
 
   const content = latest ? (JSON.parse(latest.content) as AnalysisContent) : null;
 
+  // DB上の回答済みエントリーをチェック（localStorage依存をなくすため）
+  const answeredWhats: string[] = [];
+  if (content?.nextActions?.length && userId) {
+    const whats = content.nextActions.map((item) =>
+      item.question ? `【週次の問い】${item.question}` : `【今週やってみること】${item.point}`
+    );
+    const answeredEntries = await prisma.entry.findMany({
+      where: { userId, type: "wakuwaku", what: { in: whats } },
+      select: { what: true },
+    });
+    answeredEntries.forEach((e) => { if (e.what) answeredWhats.push(e.what); });
+  }
+
   return (
     <main className="mx-auto max-w-2xl px-6 py-8">
       <h1 className="text-xl font-bold mb-4">分析結果</h1>
@@ -177,7 +190,7 @@ export default async function AnalysisPage({
           )}
 
           {content.nextActions && content.nextActions.length > 0 && (
-            <NextActionsSection items={content.nextActions} />
+            <NextActionsSection items={content.nextActions} answeredWhats={answeredWhats} />
           )}
 
           <div className="divide-y divide-gray-200 border border-gray-200 rounded">

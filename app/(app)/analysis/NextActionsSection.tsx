@@ -9,17 +9,27 @@ function storageKey(actionPoint: string) {
   return `jh_answered_${actionPoint.slice(0, 40)}`;
 }
 
-function QuestionForm({ actionPoint, question }: { actionPoint: string; question: string }) {
+function whatKey(actionPoint: string, question: string) {
+  return question ? `【週次の問い】${question}` : `【今週やってみること】${actionPoint}`;
+}
+
+function QuestionForm({
+  actionPoint,
+  question,
+  preAnswered,
+}: {
+  actionPoint: string;
+  question: string;
+  preAnswered: boolean;
+}) {
   const key = storageKey(actionPoint);
-  const [answered, setAnswered] = useState(false);
+  const [answered, setAnswered] = useState(preAnswered);
 
   useEffect(() => {
-    if (localStorage.getItem(key) === "1") setAnswered(true);
-  }, [key]);
+    if (!answered && localStorage.getItem(key) === "1") setAnswered(true);
+  }, [key, answered]);
 
   async function handleSubmit(formData: FormData) {
-    // localStorageへの書き込みをサーバーアクションより先に行う
-    // （revalidatePathによるページリフレッシュが先に走るとsetが間に合わないため）
     localStorage.setItem(key, "1");
     setAnswered(true);
     await saveActionReflection(formData);
@@ -58,7 +68,14 @@ function SubmitButton() {
   );
 }
 
-export default function NextActionsSection({ items }: { items: AnalysisItem[] }) {
+export default function NextActionsSection({
+  items,
+  answeredWhats = [],
+}: {
+  items: AnalysisItem[];
+  answeredWhats?: string[];
+}) {
+  const answeredSet = new Set(answeredWhats);
   return (
     <div className="rounded border border-blue-200 bg-blue-50 p-4">
       <h2 className="text-sm font-bold text-blue-800 mb-3">今週やってみること</h2>
@@ -73,7 +90,11 @@ export default function NextActionsSection({ items }: { items: AnalysisItem[] })
               <p className="text-xs text-blue-600 mt-0.5">{item.reason}</p>
               <p className="text-xs text-blue-500 italic mt-0.5">{item.insight}</p>
               {item.question && (
-                <QuestionForm actionPoint={item.point} question={item.question} />
+                <QuestionForm
+                  actionPoint={item.point}
+                  question={item.question}
+                  preAnswered={answeredSet.has(whatKey(item.point, item.question))}
+                />
               )}
             </div>
           </div>
