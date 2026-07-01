@@ -31,7 +31,7 @@ export default function ProfilePage() {
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="text-xl font-bold mb-2">はじめに教えてください</h1>
       <p className="text-sm text-gray-600 mb-6">
-        回答いただいた内容は、AIがより正確に分析するための情報として利用するほか、個人を特定できない形で集計し、サービス改善や統計分析にも利用します。
+        回答いただいた内容は、AIがあなたをより正確に分析するために使われます。
       </p>
 
       <form action={saveProfile} className="space-y-6">
