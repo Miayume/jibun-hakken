@@ -30,7 +30,7 @@ export default function PassionSection() {
 
       <div>
         <p className="text-sm text-gray-700 leading-relaxed mb-4 p-4 bg-amber-50 rounded border border-amber-100">
-          好きだと思えるのは、あなたの中にもその感性があるから好きになれるんです。何が自分の好きなのかが分かると、自分らしさの形が見えてきて、自分の才能が見えてくるんです。
+          好きだと感じるものには、あなた自身の価値観や感性が表れています。何が好きなのかを深く知ることで、自分らしさが見えてきます。そして、その自分らしさの中に、あなたの才能があります。
         </p>
         <h2 className="font-medium mb-3">8. 時間を忘れて没頭したもの</h2>
 
