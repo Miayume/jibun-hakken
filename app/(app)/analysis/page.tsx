@@ -114,18 +114,25 @@ export default async function AnalysisPage({
 
   const content = latest ? (JSON.parse(latest.content) as AnalysisContent) : null;
 
-  // DBのaction_answeredマーカーから回答済みインデックスを取得
+  // 過去7日以内にaction_answeredマーカーがあるインデックスを取得
   const answeredIndexes: number[] = [];
-  if (latest && content?.nextActions?.length && userId) {
-    const markers = content.nextActions.map((_, i) => `${latest.id}:${i}`);
-    const markerToIndex = new Map(markers.map((m, i) => [m, i]));
+  if (content?.nextActions?.length && userId) {
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const indexMarkers = content.nextActions.map((_, i) => String(i));
     const answered = await prisma.entry.findMany({
-      where: { userId, type: "action_answered", what: { in: markers } },
+      where: {
+        userId,
+        type: "action_answered",
+        what: { in: indexMarkers },
+        createdAt: { gte: oneWeekAgo },
+      },
       select: { what: true },
     });
     answered.forEach((e) => {
-      const idx = e.what ? markerToIndex.get(e.what) : undefined;
-      if (idx !== undefined) answeredIndexes.push(idx);
+      if (e.what !== null) {
+        const idx = parseInt(e.what, 10);
+        if (!isNaN(idx)) answeredIndexes.push(idx);
+      }
     });
   }
 
@@ -195,7 +202,6 @@ export default async function AnalysisPage({
             <NextActionsSection
               items={content.nextActions}
               answeredIndexes={answeredIndexes}
-              analysisId={latest!.id}
             />
           )}
 

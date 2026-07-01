@@ -61,21 +61,14 @@ export async function saveActionReflection(formData: FormData) {
   const actionPoint = (formData.get("actionPoint") as string)?.trim();
   const question = (formData.get("question") as string)?.trim();
   const reflection = (formData.get("reflection") as string)?.trim() || null;
-  const analysisId = (formData.get("analysisId") as string)?.trim();
   const questionIndex = parseInt((formData.get("questionIndex") as string) ?? "", 10);
 
-  if (!analysisId || isNaN(questionIndex) || questionIndex < 0) return;
+  if (isNaN(questionIndex) || questionIndex < 0) return;
 
-  // 回答済みマーカーをDBに保存（analysisId:indexをキーにするのでテキスト変更の影響なし）
-  const marker = `${analysisId}:${questionIndex}`;
-  const alreadyAnswered = await prisma.entry.findFirst({
-    where: { userId, type: "action_answered", what: marker },
+  // 回答済みマーカー（インデックスのみ。分析IDが変わっても追跡できる）
+  await prisma.entry.create({
+    data: { userId, type: "action_answered", what: String(questionIndex), whyFeeling: reflection },
   });
-  if (!alreadyAnswered) {
-    await prisma.entry.create({
-      data: { userId, type: "action_answered", what: marker, whyFeeling: reflection },
-    });
-  }
 
   // 振り返り内容があればwakuwakuエントリーとしても記録（AI分析に使う）
   if (reflection) {

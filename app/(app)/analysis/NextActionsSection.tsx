@@ -42,13 +42,11 @@ function QuestionForm({
   actionPoint,
   question,
   preAnswered,
-  analysisId,
   questionIndex,
 }: {
   actionPoint: string;
   question: string;
   preAnswered: boolean;
-  analysisId: string;
   questionIndex: number;
 }) {
   const [optimisticAnswered, setOptimisticAnswered] = useOptimistic(preAnswered);
@@ -62,7 +60,6 @@ function QuestionForm({
     <form action={action} className="mt-3 space-y-2">
       <input type="hidden" name="actionPoint" value={actionPoint} />
       <input type="hidden" name="question" value={question} />
-      <input type="hidden" name="analysisId" value={analysisId} />
       <input type="hidden" name="questionIndex" value={questionIndex} />
       <QuestionFormContent question={question} answered={optimisticAnswered} />
     </form>
@@ -72,11 +69,9 @@ function QuestionForm({
 export default function NextActionsSection({
   items,
   answeredIndexes = [],
-  analysisId,
 }: {
   items: AnalysisItem[];
   answeredIndexes?: number[];
-  analysisId: string;
 }) {
   const answeredSet = new Set(answeredIndexes);
   return (
@@ -97,7 +92,6 @@ export default function NextActionsSection({
                   actionPoint={item.point}
                   question={item.question}
                   preAnswered={answeredSet.has(i)}
-                  analysisId={analysisId}
                   questionIndex={i}
                 />
               )}
