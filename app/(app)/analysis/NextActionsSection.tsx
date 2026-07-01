@@ -1,27 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { saveActionReflection } from "@/app/actions/journal";
 import type { AnalysisItem } from "@/lib/ai/types";
 
+function storageKey(actionPoint: string) {
+  return `jh_answered_${actionPoint.slice(0, 40)}`;
+}
+
 function QuestionForm({ actionPoint, question }: { actionPoint: string; question: string }) {
-  const [saved, setSaved] = useState(false);
+  const key = storageKey(actionPoint);
+  const [answered, setAnswered] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem(key) === "1") setAnswered(true);
+  }, [key]);
 
   async function handleSubmit(formData: FormData) {
     await saveActionReflection(formData);
-    setSaved(true);
+    localStorage.setItem(key, "1");
+    setAnswered(true);
   }
 
-  if (saved) {
-    return (
-      <div className="mt-3 space-y-1">
-        <p className="text-sm font-medium text-blue-900">{question}</p>
-        <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded px-3 py-1.5">
-          ✓ 回答をジャーナルに記録しました
-        </p>
-      </div>
-    );
+  if (answered) {
+    return <p className="mt-2 text-xs text-green-600">✓ 回答済み</p>;
   }
 
   return (
