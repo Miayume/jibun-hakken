@@ -1,44 +1,69 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
-import { saveActionReflection } from "@/app/actions/journal";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { markQuestionAnswered } from "@/app/actions/journal";
 import type { AnalysisItem } from "@/lib/ai/types";
 
-function FormContent({ question, preAnswered }: { question: string; preAnswered: boolean }) {
-  const { pending } = useFormStatus();
+function QuestionForm({
+  questionIndex,
+  preAnswered,
+  question,
+  actionPoint,
+}: {
+  questionIndex: number;
+  preAnswered: boolean;
+  question: string;
+  actionPoint: string;
+}) {
+  const router = useRouter();
+  const [reflection, setReflection] = useState("");
+  const [answered, setAnswered] = useState(preAnswered);
+  const [pending, setPending] = useState(false);
 
-  if (preAnswered) {
+  useEffect(() => {
+    if (preAnswered) setAnswered(true);
+  }, [preAnswered]);
+
+  async function handleSubmit() {
+    setPending(true);
+    setAnswered(true);
+    await markQuestionAnswered(questionIndex, reflection || null, question, actionPoint);
+    router.refresh();
+    setPending(false);
+  }
+
+  if (answered) {
     return <p className="mt-2 text-xs text-green-600">✓ 回答済み</p>;
   }
 
   return (
-    <>
+    <div className="mt-3 space-y-2">
       <p className="text-sm font-medium text-blue-900">{question}</p>
       <textarea
-        name="reflection"
+        value={reflection}
+        onChange={(e) => setReflection(e.target.value)}
         rows={3}
         placeholder="思いつくまま自由に書いてください。書かなくてもOKですが、書くほどあなたに合った分析の精度が上がります。"
         className="w-full rounded border border-blue-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
       />
       <button
-        type="submit"
+        onClick={handleSubmit}
         disabled={pending}
         className="rounded bg-blue-600 text-white px-4 py-1.5 text-xs font-medium hover:bg-blue-700 disabled:opacity-50"
       >
         {pending ? "保存中..." : "記録する"}
       </button>
-    </>
+    </div>
   );
 }
 
 export default function NextActionsSection({
   items,
   answeredIndexes = [],
-  scope,
 }: {
   items: AnalysisItem[];
   answeredIndexes?: number[];
-  scope: string;
 }) {
   const answeredSet = new Set(answeredIndexes);
   return (
@@ -55,13 +80,12 @@ export default function NextActionsSection({
               <p className="text-xs text-blue-600 mt-0.5">{item.reason}</p>
               <p className="text-xs text-blue-500 italic mt-0.5">{item.insight}</p>
               {item.question && (
-                <form action={saveActionReflection} className="mt-3 space-y-2">
-                  <input type="hidden" name="actionPoint" value={item.point} />
-                  <input type="hidden" name="question" value={item.question} />
-                  <input type="hidden" name="questionIndex" value={i} />
-                  <input type="hidden" name="scope" value={scope} />
-                  <FormContent question={item.question} preAnswered={answeredSet.has(i)} />
-                </form>
+                <QuestionForm
+                  questionIndex={i}
+                  preAnswered={answeredSet.has(i)}
+                  question={item.question}
+                  actionPoint={item.point}
+                />
               )}
             </div>
           </div>

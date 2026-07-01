@@ -202,7 +202,6 @@ export default async function AnalysisPage({
             <NextActionsSection
               items={content.nextActions}
               answeredIndexes={answeredIndexes}
-              scope={scope}
             />
           )}
 

@@ -54,23 +54,19 @@ export async function addEntry(formData: FormData) {
   redirect(`/journal/new?saved=1&type=${nextType}`);
 }
 
-export async function saveActionReflection(formData: FormData) {
+export async function markQuestionAnswered(
+  questionIndex: number,
+  reflection: string | null,
+  question: string | null,
+  actionPoint: string | null,
+) {
   const userId = await getCurrentUserId();
   if (!userId) return;
 
-  const actionPoint = (formData.get("actionPoint") as string)?.trim();
-  const question = (formData.get("question") as string)?.trim();
-  const reflection = (formData.get("reflection") as string)?.trim() || null;
-  const questionIndex = parseInt((formData.get("questionIndex") as string) ?? "", 10);
-
-  if (isNaN(questionIndex) || questionIndex < 0) return;
-
-  // 回答済みマーカー（インデックスのみ。分析IDが変わっても追跡できる）
   await prisma.entry.create({
     data: { userId, type: "action_answered", what: String(questionIndex), whyFeeling: reflection },
   });
 
-  // 振り返り内容があればwakuwakuエントリーとしても記録（AI分析に使う）
   if (reflection) {
     const what = question
       ? `【週次の問い】${question}`
@@ -80,8 +76,7 @@ export async function saveActionReflection(formData: FormData) {
     });
   }
 
-  const scope = (formData.get("scope") as string)?.trim() || "recent30";
-  redirect(`/analysis?scope=${scope}`);
+  revalidatePath("/analysis");
 }
 
 export async function deleteEntry(entryId: string) {
