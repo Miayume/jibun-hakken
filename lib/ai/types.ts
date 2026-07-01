@@ -88,6 +88,7 @@ export interface UserProfileForAnalysis {
   supplementQ2?: string | null;
   supplementQ3?: string | null;
   personalityWords?: string[] | null;
+  visionAnswers?: Record<string, string> | null;
 }
 
 export interface AIProvider {

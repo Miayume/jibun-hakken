@@ -10,6 +10,7 @@ import {
 } from "@/lib/constants/profileOptions";
 import PassionSection from "./PassionSection";
 import WordSelection from "./WordSelection";
+import VisionSection from "./VisionSection";
 
 function RadioGroup({ name, options }: { name: string; options: string[] }) {
   return (
@@ -77,6 +78,10 @@ export default function ProfilePage() {
         <hr className="border-gray-200" />
 
         <WordSelection />
+
+        <hr className="border-gray-200" />
+
+        <VisionSection />
 
         <button
           type="submit"

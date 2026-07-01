@@ -40,6 +40,7 @@ model Profile {
   supplementQ2     String? // お金をもらわなくてもやり続けられること
   supplementQ3     String? // 他人が苦痛なことを自分だけ楽しいと感じること
   personalityWords String? // JSON: string[] 選んだ言葉
+  visionAnswers    String? // JSON: {q1..q8} 最高の自分のイメージ
   updatedAt        DateTime @updatedAt
 }
 

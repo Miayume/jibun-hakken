@@ -81,6 +81,24 @@ export function buildProfileContext(profile: UserProfileForAnalysis): string {
     if (profile.supplementQ3) lines.push(`- 他人が苦痛なことを自分だけ楽しいと感じること: ${profile.supplementQ3}`);
   }
 
+  if (profile.visionAnswers && Object.values(profile.visionAnswers).some(Boolean)) {
+    lines.push("\n【最高の自分のビジョン】");
+    const vq = [
+      "最高に自分らしく生きている状況",
+      "その時の表情",
+      "隣にいる人",
+      "いる場所",
+      "周りに見えるもの",
+      "聞こえる音",
+      "香り",
+      "空間に置いてあるもの",
+    ];
+    vq.forEach((label, i) => {
+      const val = profile.visionAnswers?.[`q${i + 1}`];
+      if (val) lines.push(`- ${label}: ${val}`);
+    });
+  }
+
   if (profile.personalityWords && profile.personalityWords.length > 0) {
     lines.push("\n【自分らしいと思う言葉（選択済み）】");
     lines.push(profile.personalityWords.join("、"));
