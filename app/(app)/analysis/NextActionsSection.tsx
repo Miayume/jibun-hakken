@@ -1,20 +1,13 @@
 "use client";
 
-import { useOptimistic } from "react";
 import { useFormStatus } from "react-dom";
 import { saveActionReflection } from "@/app/actions/journal";
 import type { AnalysisItem } from "@/lib/ai/types";
 
-function QuestionFormContent({
-  question,
-  answered,
-}: {
-  question: string;
-  answered: boolean;
-}) {
+function FormContent({ question, preAnswered }: { question: string; preAnswered: boolean }) {
   const { pending } = useFormStatus();
 
-  if (answered) {
+  if (preAnswered) {
     return <p className="mt-2 text-xs text-green-600">✓ 回答済み</p>;
   }
 
@@ -38,40 +31,14 @@ function QuestionFormContent({
   );
 }
 
-function QuestionForm({
-  actionPoint,
-  question,
-  preAnswered,
-  questionIndex,
-}: {
-  actionPoint: string;
-  question: string;
-  preAnswered: boolean;
-  questionIndex: number;
-}) {
-  const [optimisticAnswered, setOptimisticAnswered] = useOptimistic(preAnswered);
-
-  async function action(formData: FormData) {
-    setOptimisticAnswered(true);
-    await saveActionReflection(formData);
-  }
-
-  return (
-    <form action={action} className="mt-3 space-y-2">
-      <input type="hidden" name="actionPoint" value={actionPoint} />
-      <input type="hidden" name="question" value={question} />
-      <input type="hidden" name="questionIndex" value={questionIndex} />
-      <QuestionFormContent question={question} answered={optimisticAnswered} />
-    </form>
-  );
-}
-
 export default function NextActionsSection({
   items,
   answeredIndexes = [],
+  scope,
 }: {
   items: AnalysisItem[];
   answeredIndexes?: number[];
+  scope: string;
 }) {
   const answeredSet = new Set(answeredIndexes);
   return (
@@ -88,12 +55,13 @@ export default function NextActionsSection({
               <p className="text-xs text-blue-600 mt-0.5">{item.reason}</p>
               <p className="text-xs text-blue-500 italic mt-0.5">{item.insight}</p>
               {item.question && (
-                <QuestionForm
-                  actionPoint={item.point}
-                  question={item.question}
-                  preAnswered={answeredSet.has(i)}
-                  questionIndex={i}
-                />
+                <form action={saveActionReflection} className="mt-3 space-y-2">
+                  <input type="hidden" name="actionPoint" value={item.point} />
+                  <input type="hidden" name="question" value={item.question} />
+                  <input type="hidden" name="questionIndex" value={i} />
+                  <input type="hidden" name="scope" value={scope} />
+                  <FormContent question={item.question} preAnswered={answeredSet.has(i)} />
+                </form>
               )}
             </div>
           </div>

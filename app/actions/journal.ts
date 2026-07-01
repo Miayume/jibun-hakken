@@ -80,7 +80,8 @@ export async function saveActionReflection(formData: FormData) {
     });
   }
 
-  revalidatePath("/analysis");
+  const scope = (formData.get("scope") as string)?.trim() || "recent30";
+  redirect(`/analysis?scope=${scope}`);
 }
 
 export async function deleteEntry(entryId: string) {
