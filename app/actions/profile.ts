@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { runAnalysisForUser } from "@/lib/analysis/trigger";
 
 function emptyToNull(value: FormDataEntryValue | null): string | null {
   if (typeof value !== "string" || value.trim() === "") return null;
@@ -47,6 +48,9 @@ export async function saveProfile(formData: FormData) {
       visionAnswers: emptyToNull(formData.get("visionAnswers")),
     },
   });
+
+  // プロフィール更新後に分析を再実行して新しい回答を反映させる
+  void runAnalysisForUser(userId);
 
   redirect("/journal/new");
 }
