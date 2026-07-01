@@ -3,22 +3,18 @@
 import { useState } from "react";
 
 interface PassionItem {
-  item: string;
-  why1: string;
-  why2: string;
-  why3: string;
+  item?: string;
+  why1?: string;
+  why2?: string;
+  why3?: string;
 }
-
-const empty = (): PassionItem => ({ item: "", why1: "", why2: "", why3: "" });
 
 function PassionCard({
   index,
-  passion,
-  onChange,
+  initial,
 }: {
   index: number;
-  passion: PassionItem;
-  onChange: (field: keyof PassionItem, value: string) => void;
+  initial?: PassionItem;
 }) {
   const [q3Label, setQ3Label] = useState("2で答えた内容は、なぜ好きだったと思いますか？");
   const [q4Label, setQ4Label] = useState("3で答えた内容は、なぜ好きだったと思いますか？");
@@ -68,8 +64,7 @@ function PassionCard({
         <input
           type="text"
           name={`p${index}_item`}
-          value={passion.item}
-          onChange={(e) => onChange("item", e.target.value)}
+          defaultValue={initial?.item ?? ""}
           className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
           placeholder="例：恐竜の図鑑、ゲーム、料理"
         />
@@ -80,8 +75,7 @@ function PassionCard({
         <input
           type="text"
           name={`p${index}_why1`}
-          value={passion.why1}
-          onChange={(e) => onChange("why1", e.target.value)}
+          defaultValue={initial?.why1 ?? ""}
           onBlur={(e) => generateQ3(e.target.value)}
           className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
         />
@@ -94,8 +88,7 @@ function PassionCard({
         <input
           type="text"
           name={`p${index}_why2`}
-          value={passion.why2}
-          onChange={(e) => onChange("why2", e.target.value)}
+          defaultValue={initial?.why2 ?? ""}
           onBlur={(e) => generateQ4(e.target.value)}
           className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
         />
@@ -108,8 +101,7 @@ function PassionCard({
         <input
           type="text"
           name={`p${index}_why3`}
-          value={passion.why3}
-          onChange={(e) => onChange("why3", e.target.value)}
+          defaultValue={initial?.why3 ?? ""}
           className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
         />
       </div>
@@ -117,16 +109,14 @@ function PassionCard({
   );
 }
 
-export default function PassionSection({ initialPassions }: { initialPassions?: PassionItem[] | null }) {
-  const [passions, setPassions] = useState<PassionItem[]>(
-    initialPassions && initialPassions.length > 0 ? initialPassions : [empty()]
+export default function PassionSection({
+  initialPassions,
+}: {
+  initialPassions?: PassionItem[] | null;
+}) {
+  const [count, setCount] = useState(
+    initialPassions && initialPassions.length > 0 ? initialPassions.length : 1
   );
-
-  function update(index: number, field: keyof PassionItem, value: string) {
-    setPassions((prev) =>
-      prev.map((p, i) => (i === index ? { ...p, [field]: value } : p))
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -137,23 +127,18 @@ export default function PassionSection({ initialPassions }: { initialPassions?: 
         <h2 className="font-medium mb-3">8. 時間を忘れて没頭したもの</h2>
 
         <div className="space-y-5">
-          {passions.map((p, i) => (
-            <PassionCard
-              key={i}
-              index={i}
-              passion={p}
-              onChange={(field, value) => update(i, field, value)}
-            />
+          {Array.from({ length: count }, (_, i) => (
+            <PassionCard key={i} index={i} initial={initialPassions?.[i]} />
           ))}
         </div>
 
-        {passions.length < 3 && (
+        {count < 3 && (
           <button
             type="button"
-            onClick={() => setPassions((prev) => [...prev, empty()])}
+            onClick={() => setCount((c) => c + 1)}
             className="mt-3 text-sm text-gray-500 border border-gray-300 rounded px-4 py-1.5 hover:bg-gray-50"
           >
-            ＋ {passions.length + 1}つ目を追加（任意）
+            ＋ {count + 1}つ目を追加（任意）
           </button>
         )}
       </div>

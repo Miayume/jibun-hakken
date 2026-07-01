@@ -13,10 +13,12 @@ function emptyToNull(value: FormDataEntryValue | null): string | null {
 function parsePassions(formData: FormData): string | null {
   const passions = [];
   for (let i = 0; i < 3; i++) {
-    const item = formData.get(`p${i}_item`);
-    if (item === null) break;
+    const raw = formData.get(`p${i}_item`);
+    if (raw === null) break; // このカード自体がDOMにない
+    const item = (raw as string).trim();
+    if (!item) continue; // itemが空なら保存しない
     passions.push({
-      item: (item as string).trim(),
+      item,
       why1: ((formData.get(`p${i}_why1`) as string) ?? "").trim(),
       why2: ((formData.get(`p${i}_why2`) as string) ?? "").trim(),
       why3: ((formData.get(`p${i}_why3`) as string) ?? "").trim(),
