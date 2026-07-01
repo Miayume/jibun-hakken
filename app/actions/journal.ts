@@ -2,7 +2,6 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import { after } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
@@ -65,24 +64,26 @@ export async function saveActionReflection(formData: FormData) {
   const analysisId = (formData.get("analysisId") as string)?.trim();
   const questionIndex = parseInt((formData.get("questionIndex") as string) ?? "", 10);
 
-  const what = question
-    ? `【週次の問い】${question}`
-    : `【今週やってみること】${actionPoint}`;
+  if (!analysisId || isNaN(questionIndex) || questionIndex < 0) return;
 
-  if (!what) return;
-
-  await prisma.entry.create({
-    data: { userId, type: "wakuwaku", what, whyFeeling: reflection },
+  // 回答済みマーカーをDBに保存（analysisId:indexをキーにするのでテキスト変更の影響なし）
+  const marker = `${analysisId}:${questionIndex}`;
+  const alreadyAnswered = await prisma.entry.findFirst({
+    where: { userId, type: "action_answered", what: marker },
   });
+  if (!alreadyAnswered) {
+    await prisma.entry.create({
+      data: { userId, type: "action_answered", what: marker, whyFeeling: reflection },
+    });
+  }
 
-  // cookieに回答済みフラグを保存（analysisId + indexベースなのでテキスト変更の影響なし）
-  if (analysisId && !isNaN(questionIndex) && questionIndex >= 0) {
-    const cookieStore = await cookies();
-    cookieStore.set(`jh_ans_${analysisId}_${questionIndex}`, "1", {
-      maxAge: 60 * 60 * 24 * 90,
-      path: "/",
-      httpOnly: true,
-      sameSite: "lax",
+  // 振り返り内容があればwakuwakuエントリーとしても記録（AI分析に使う）
+  if (reflection) {
+    const what = question
+      ? `【週次の問い】${question}`
+      : `【今週やってみること】${actionPoint}`;
+    await prisma.entry.create({
+      data: { userId, type: "wakuwaku", what, whyFeeling: reflection },
     });
   }
 

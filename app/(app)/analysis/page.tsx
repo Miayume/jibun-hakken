@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { getCurrentUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { entryCountThresholds } from "@/lib/analysis/trigger";
@@ -115,14 +114,18 @@ export default async function AnalysisPage({
 
   const content = latest ? (JSON.parse(latest.content) as AnalysisContent) : null;
 
-  // cookieから回答済みインデックスを取得（analysisId + indexベース）
+  // DBのaction_answeredマーカーから回答済みインデックスを取得
   const answeredIndexes: number[] = [];
-  if (latest && content?.nextActions?.length) {
-    const cookieStore = await cookies();
-    content.nextActions.forEach((_, i) => {
-      if (cookieStore.get(`jh_ans_${latest.id}_${i}`)?.value === "1") {
-        answeredIndexes.push(i);
-      }
+  if (latest && content?.nextActions?.length && userId) {
+    const markers = content.nextActions.map((_, i) => `${latest.id}:${i}`);
+    const markerToIndex = new Map(markers.map((m, i) => [m, i]));
+    const answered = await prisma.entry.findMany({
+      where: { userId, type: "action_answered", what: { in: markers } },
+      select: { what: true },
+    });
+    answered.forEach((e) => {
+      const idx = e.what ? markerToIndex.get(e.what) : undefined;
+      if (idx !== undefined) answeredIndexes.push(idx);
     });
   }
 
